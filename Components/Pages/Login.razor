@@ -1,6 +1,8 @@
 ﻿@page "/login"
 @using MMS.Models.ViewModels
 @using System.Security.Claims
+@using MMS.Services
+@using MMS.Services.Responses
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
 @inject NavigationManager NavigationManager
@@ -48,29 +50,14 @@
 
 	private async Task ValidSubmit()
 	{
-		string correctEmail = "admin";
-		string correctPassword = "admin";
-
-		if (Model.Email != correctEmail || Model.Password != correctPassword)
+		LoginService loginService = new LoginService();
+		ServiceResponse response = await loginService.Login(HttpContext, Model);
+		if (response.Flag)
 		{
-			error = "Pogrešan email ili lozinka.";
-			return;
+			NavigationManager.NavigateTo("/");
+		} else
+		{
+			error = response.Message;
 		}
-
-		await Authenticate();
-	}
-
-	private async Task Authenticate()
-	{
-		var claims = new List<Claim>
-		{
-			new Claim(ClaimTypes.Name, Model.Email),
-			new Claim(ClaimTypes.Role, "Admin")
-		};
-
-		var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-		var principal = new ClaimsPrincipal(identity);
-		await HttpContext.SignInAsync(principal);
-		NavigationManager.NavigateTo("/");
 	}
 }

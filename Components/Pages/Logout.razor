@@ -1,20 +1,28 @@
 ﻿@page "/logout"
+@using MMS.Services
+@using MMS.Services.Responses
 @using Microsoft.AspNetCore.Authentication
 @inject NavigationManager NavigationManager
 
 <h3>Odjava</h3>
 <p>Uspješno ste odjavljeni. <a href="/login">Natrag na prijavu.</a></p>
+<div class="mb-3 text-center">
+	<span class="text-danger">@error</span>
+</div>
 
 @code {
 	[CascadingParameter]
 	public HttpContext? HttpContext { get; set; }
 
+	private string? error = "";
+
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		if (HttpContext.User.Identity.IsAuthenticated)
+		LoginService loginService = new LoginService();
+		ServiceResponse response = await loginService.Logout(HttpContext);
+		if (response.Flag)
 		{
-			await HttpContext.SignOutAsync();
 			NavigationManager.NavigateTo("/logout", true);
 		}
 	}

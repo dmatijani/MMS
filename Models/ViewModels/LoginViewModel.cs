@@ -4,9 +4,9 @@ namespace MMS.Models.ViewModels
 {
     public class LoginViewModel
     {
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter an email address.")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Molimo unijeti email adresu.")]
         public string? Email { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please provide a password.")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Molimo unijeti lozinku.")]
         public string? Password { get; set; }
     }
 }
