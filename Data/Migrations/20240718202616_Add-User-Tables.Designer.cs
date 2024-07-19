@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MMS.Data.Migrations
 {
-    [DbContext(typeof(Context))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20240718202616_Add-User-Tables")]
     partial class AddUserTables
     {

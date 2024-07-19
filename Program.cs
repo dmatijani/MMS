@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MMS.Components;
+using MMS.Data;
+using MMS.Data.Repositories;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<AppDbContext>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 
 var app = builder.Build();
 

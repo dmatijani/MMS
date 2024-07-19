@@ -1,4 +1,7 @@
 ﻿@page "/"
+@using MMS.Data.Repositories
+@using MMS.Models
+@inject IRoleRepository RoleRepository
 
 <PageTitle>MMS</PageTitle>
 
@@ -18,3 +21,16 @@
 		</div>
 	</div>
 </div>
+
+@foreach (var role in roles)
+{
+	<p>@role.Name</p>
+}
+
+@code {
+	List<Role> roles = new List<Role>();
+	protected override async Task OnInitializedAsync()
+	{
+		roles = await RoleRepository.Get();
+	}
+}

@@ -3,12 +3,12 @@ using MMS.Models;
 
 namespace MMS.Data
 {
-	public class Context : DbContext
+	public class AppDbContext : DbContext
 	{
 
         public IConfiguration _config { get; set; }
 
-        public Context(IConfiguration config)
+        public AppDbContext(IConfiguration config)
 		{
 			_config = config;
 		}
