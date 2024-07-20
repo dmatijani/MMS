@@ -1,0 +1,107 @@
+﻿@page "/membership-request"
+@using Radzen
+@using MMS.Models.ViewModels
+@rendermode InteractiveServer
+
+<PageTitle>Zahtjev za članstvom</PageTitle>
+<h3>Zahtjev za članstvom</h3>
+
+<RadzenCard>
+	<RadzenTemplateForm TItem=MembershipRequestViewModel Data=@Model Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+		<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center">
+			<RadzenFieldset Text="Osnovni podaci">
+				<RadzenRow>
+					<RadzenStack>
+						<RadzenLabel Text="Ime*:" Component="NameText"></RadzenLabel>
+						<RadzenTextBox @bind-Value=Model.Name Name="NameText" AllowClear="false" MaxLength="50" Placeholder="Vaše ime"></RadzenTextBox>
+						<RadzenRequiredValidator Component="NameText" Text="Ime je obavezno!" />
+					</RadzenStack>
+
+					<RadzenStack>
+						<RadzenLabel Text="Prezime*:" Component="SurnameText"></RadzenLabel>
+						<RadzenTextBox @bind-Value=Model.Surname Name="SurnameText" AllowClear="false" MaxLength="50" Placeholder="Vaše prezime"></RadzenTextBox>
+						<RadzenRequiredValidator Component="SurnameText" Text="Prezime je obavezno!" />
+					</RadzenStack>
+
+					<RadzenStack>
+						<RadzenLabel Text="Primarna email adresa*:" Component="EmailText"></RadzenLabel>
+						<RadzenTextBox @bind-Value=Model.PrimaryEmail Name="EmailText" AllowClear="false" Placeholder="Vaš primarni email"></RadzenTextBox>
+						<RadzenRequiredValidator Component="EmailText" Text="Email adresa je obavezna!" />
+						<RadzenEmailValidator Component="EmailText" Text="Nije unesena ispravna email adresa." />
+					</RadzenStack>
+				</RadzenRow>
+			</RadzenFieldset>
+
+			<RadzenFieldset Text="Razlog zahtjeva za članstvom">
+				<RadzenStack>
+					<RadzenText>Napišite razlog zašto želite postati član.</RadzenText>
+					<RadzenLabel Text="Razlog:" Component="ReasonText"></RadzenLabel>
+					<RadzenTextArea @bind-Value=Model.MembershipReason Name="ReasonText" Placeholder="U nekoliko riječi opišite zašto želite postati član."></RadzenTextArea>
+				</RadzenStack>
+			</RadzenFieldset>
+
+			<RadzenFieldset Text="Ostali kontakti">
+				<RadzenStack>
+					<RadzenText>Ostali kontakti nisu nužni, no dobro dođu u slučaju da vas želimo kontaktirati.</RadzenText>
+					<RadzenRow>
+						<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" />
+						<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Warning" Icon="warning_amber" Text="Ukloni sve kontakte" />
+					</RadzenRow>
+					<RadzenStack>
+						@foreach (var contact in Model.UserData)
+						{
+							<RadzenCard Variant="Variant.Filled">
+								<RadzenRow>
+									<RadzenDropDown @bind-Value=contact.Name Data=@possibleContacts />
+									<RadzenTextBox @bind-Value=contact.Value AllowClear="false" MaxLength="50" Placeholder=@contact.Name Name=@contact.Id.ToString() />
+									<RadzenRequiredValidator Component=@contact.Id.ToString() Text="Ne može ostati prazno!" />
+								</RadzenRow>
+							</RadzenCard>
+						}
+					</RadzenStack>
+				</RadzenStack>
+			</RadzenFieldset>
+
+			<RadzenButton ButtonType="ButtonType.Submit" Text="Pošalji" class="align-self-md-center" />
+		</RadzenStack>		
+	</RadzenTemplateForm>
+</RadzenCard>
+
+@code {
+	public MembershipRequestViewModel Model { get; set; } = new MembershipRequestViewModel
+	{
+		UserData = new List<UserDataViewModel>()
+	};
+
+	public List<string> possibleContacts = new List<string>
+	{
+		"Sekundarni email",
+		"Mobilni telefon",
+		"Fiksni telefon",
+		"Adresa",
+		"Web mjesto",
+		"Društvena mreža"
+	};
+
+	public int contactId = 0;
+
+	private void RemoveAllContacts()
+	{
+		Model.UserData = new List<UserDataViewModel>();
+	}
+
+	private void AddContact()
+	{
+		Model.UserData.Add(new UserDataViewModel(contactId++));
+	}
+
+	private async Task OnInvalidSubmit()
+	{
+
+	}
+
+	private async Task OnSubmit()
+	{
+
+	}
+}
