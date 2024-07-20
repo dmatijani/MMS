@@ -1,8 +1,10 @@
 ﻿@page "/membership-request"
+@using MMS.Services
 @using Radzen
 @using MMS.Models.ViewModels
 @rendermode InteractiveServer
 @inject NotificationService NotificationService
+@inject UserService UserService
 
 <PageTitle>Zahtjev za članstvom</PageTitle>
 <h3>Zahtjev za članstvom</h3>
@@ -14,19 +16,19 @@
 				<RadzenRow JustifyContent="JustifyContent.SpaceBetween">
 					<RadzenStack>
 						<RadzenLabel Text="Ime*:" Component="NameText"></RadzenLabel>
-						<RadzenTextBox @bind-Value=Model.Name Name="NameText" AllowClear="false" MaxLength="50" Placeholder="Vaše ime"></RadzenTextBox>
+						<RadzenTextBox @bind-Value=Model.Name Name="NameText" AllowClear="false" MaxLength="50" Placeholder="Vaše ime" Disabled=@sending></RadzenTextBox>
 						<RadzenRequiredValidator Component="NameText" Text="Ime je obavezno!" />
 					</RadzenStack>
 
 					<RadzenStack>
 						<RadzenLabel Text="Prezime*:" Component="SurnameText"></RadzenLabel>
-						<RadzenTextBox @bind-Value=Model.Surname Name="SurnameText" AllowClear="false" MaxLength="50" Placeholder="Vaše prezime"></RadzenTextBox>
+						<RadzenTextBox @bind-Value=Model.Surname Name="SurnameText" AllowClear="false" MaxLength="50" Placeholder="Vaše prezime" Disabled=@sending></RadzenTextBox>
 						<RadzenRequiredValidator Component="SurnameText" Text="Prezime je obavezno!" />
 					</RadzenStack>
 
 					<RadzenStack>
 						<RadzenLabel Text="Primarna email adresa*:" Component="EmailText"></RadzenLabel>
-						<RadzenTextBox @bind-Value=Model.PrimaryEmail Name="EmailText" AllowClear="false" Placeholder="Vaš primarni email"></RadzenTextBox>
+						<RadzenTextBox @bind-Value=Model.PrimaryEmail Name="EmailText" AllowClear="false" Placeholder="Vaš primarni email" Disabled=@sending></RadzenTextBox>
 						<RadzenRequiredValidator Component="EmailText" Text="Email adresa je obavezna!" />
 						<RadzenEmailValidator Component="EmailText" Text="Nije unesena ispravna email adresa." />
 					</RadzenStack>
@@ -37,7 +39,7 @@
 				<RadzenStack>
 					<RadzenText>Napišite razlog zašto želite postati član.</RadzenText>
 					<RadzenLabel Text="Razlog:" Component="ReasonText"></RadzenLabel>
-					<RadzenTextArea @bind-Value=Model.MembershipReason Name="ReasonText" Placeholder="U nekoliko riječi opišite zašto želite postati član (nije obavezno)."></RadzenTextArea>
+					<RadzenTextArea @bind-Value=Model.MembershipReason Name="ReasonText" Placeholder="U nekoliko riječi opišite zašto želite postati član (nije obavezno)." Disabled=@sending></RadzenTextArea>
 				</RadzenStack>
 			</RadzenFieldset>
 
@@ -45,8 +47,8 @@
 				<RadzenStack>
 					<RadzenText>Ostali kontakti nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
 					<RadzenRow>
-						<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" />
-						<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Danger" Icon="warning_amber" Text="Ukloni sve kontakte" />
+						<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" Disabled=@sending />
+						<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Danger" Icon="warning_amber" Text="Ukloni sve kontakte" Disabled=@sending />
 					</RadzenRow>
 					<RadzenStack>
 						@foreach (var contact in Model.UserData)
@@ -54,11 +56,11 @@
 							<RadzenCard Variant="Variant.Filled">
 								<RadzenRow AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
 									<RadzenRow AlignItems="AlignItems.Center">
-										<RadzenDropDown @bind-Value=contact.Name Data=@possibleContacts />
-										<RadzenTextBox @bind-Value=contact.Value AllowClear="false" MaxLength="80" Placeholder=@contact.Name Name=@contact.Id.ToString() />
+										<RadzenDropDown @bind-Value=contact.Name Data=@possibleContacts Disabled=@sending />
+										<RadzenTextBox @bind-Value=contact.Value AllowClear="false" MaxLength="80" Placeholder=@contact.Name Name=@contact.Id.ToString() Disabled=@sending />
 										<RadzenRequiredValidator Component=@contact.Id.ToString() Text="Ne može ostati prazno!" />
 									</RadzenRow>
-									<RadzenButton ButtonStyle="ButtonStyle.Danger" Text="🗙" JustifyContent="JustifyContent.End" Click=@(() => RemoveOneContact(contact.Id)) />
+									<RadzenButton ButtonStyle="ButtonStyle.Danger" Text="🗙" JustifyContent="JustifyContent.End" Click=@(() => RemoveOneContact(contact.Id)) Disabled=@sending />
 								</RadzenRow>
 							</RadzenCard>
 						}
@@ -67,18 +69,27 @@
 			</RadzenFieldset>
 
 			<RadzenButton ButtonType="ButtonType.Submit" Text="Pošalji" class="align-self-md-center" Disabled=@sending />
-			@if (sending)
+			@if (sending && !successful)
 			{
 				<RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
 			}
 		</RadzenStack>		
 	</RadzenTemplateForm>
+	@if (successful)
+	{
+		<RadzenAlert AlertStyle="AlertStyle.Success" Title="Uspjeh!">
+			Uspješno ste poslali zahtjev za članstvo. Nakon odobrenja zahtjeva od strane administratora, na Vaš primarni email <code style="color: white;">@Model.PrimaryEmail</code> dobit ćete <span style="font-style: italic;">Rješenje o članstvu</span> sa podacima za plaćanje članarine te pristupne podatke.
+			<br />
+			<a href="/">Natrag na početnu stranicu</a>
+		</RadzenAlert>
+	}
 </RadzenCard>
 
 @code {
 	public MembershipRequestViewModel Model { get; set; } = new MembershipRequestViewModel
 	{
-		UserData = new List<UserDataViewModel>()
+		UserData = new List<UserDataViewModel>(),
+		MembershipReason = ""
 	};
 
 	public List<string> possibleContacts = new List<string>
@@ -93,6 +104,7 @@
 
 	public int contactId = 0;
 	public bool sending = false;
+	public bool successful = false;
 
 	private void RemoveOneContact(int id)
 	{
@@ -130,7 +142,18 @@
 		});
 	}
 
-	private async Task OnInvalidSubmit()
+	private void ShowSuccessNotification(string message)
+	{
+		NotificationService.Notify(new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Duration = 5000,
+				Summary = "Uspjeh",
+				Detail = message
+			});
+	}
+
+	private void OnInvalidSubmit()
 	{
 		ShowErrorNotification("Podaci nisu ispravno uneseni.");
 	}
@@ -138,5 +161,15 @@
 	private async Task OnSubmit()
 	{
 		sending = true;
+		var result = await UserService.SendNewMembershipRequest(Model);
+		if (!result.Flag)
+		{
+			ShowErrorNotification(result.Message);
+			sending = false;
+		} else
+		{
+			ShowSuccessNotification(result.Message);
+			successful = true;
+		}
 	}
 }
