@@ -6,7 +6,6 @@ namespace MMS.Data.Repositories
 	{
 		public Task<List<User>> Get();
 		public Task<User?> Get(int id);
-		public Task<List<User>> GetByRole(Role role);
 		public Task Create(User entity);
 		public Task Update(User entity);
 		public Task Delete(User entity);

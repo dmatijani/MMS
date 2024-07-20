@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using MMS.Models;
 using MMS.Models.ViewModels;
 using MMS.Services.Responses;
 using System.Reflection;
@@ -11,27 +12,32 @@ namespace MMS.Services
 {
     public class LoginService
     {
+        private readonly UserService _userService;
+
+        public LoginService(UserService userService)
+        {
+            _userService = userService;
+        }
+
         public async Task<ServiceResponse> Login(HttpContext httpContext, LoginViewModel model)
         {
-            string correctEmail = "admin";
-            string correctPassword = "admin";
-
-            if (model.Email != correctEmail || model.Password != correctPassword)
+            var user = await _userService.GetUserByLoginInformation(model);
+            if (user == null)
             {
-                return new ServiceResponse(false, "Pogrešan email ili lozinka");
-            }
+				return new ServiceResponse(false, "Pogrešan email ili lozinka");
+			}
 
-            LoginService authenticationService = new LoginService();
-            await Authenticate(httpContext, model);
+            await Authenticate(httpContext, user);
             return new ServiceResponse(true, "Prijava uspješna");
         }
 
-		private async Task Authenticate(HttpContext httpContext, LoginViewModel model)
+		private async Task Authenticate(HttpContext httpContext, User user)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, model.Email),
-                new Claim(ClaimTypes.Role, "Admin")
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.Name + " " + user.Surname),
+                new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

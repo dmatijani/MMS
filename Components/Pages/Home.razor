@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using MMS.Data.Repositories
 @using MMS.Models
+@using System.Security.Claims
 @inject IRoleRepository RoleRepository
 
 <PageTitle>MMS</PageTitle>
@@ -14,7 +15,11 @@
 						<span>Pritisni <a href="/login">ovdje</a> za prijavu.</span>
 					</NotAuthorized>
 					<Authorized>
-						<span>Hej, <b>@context.User.Identity.Name</b>, pritisni <a href="/logout">ovdje</a> za odjavu.</span>
+						<span>Hej, <b>@context.User.Identity?.Name</b>, pritisni <a href="/logout">ovdje</a> za odjavu.</span>
+						<br />
+						<span>Email: @context.User.FindFirst(ClaimTypes.Email)?.Value</span>
+						<br />
+						<span>Uloga: @context.User.FindFirst(ClaimTypes.Role)?.Value</span>
 					</Authorized>
 				</AuthorizeView>
 			</div>

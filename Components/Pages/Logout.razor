@@ -3,6 +3,7 @@
 @using MMS.Services.Responses
 @using Microsoft.AspNetCore.Authentication
 @inject NavigationManager NavigationManager
+@inject LoginService LoginService
 
 <h3>Odjava</h3>
 <p>Uspješno ste odjavljeni. <a href="/login">Natrag na prijavu.</a></p>
@@ -19,8 +20,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		LoginService loginService = new LoginService();
-		ServiceResponse response = await loginService.Logout(HttpContext);
+		ServiceResponse response = await LoginService.Logout(HttpContext);
 		if (response.Flag)
 		{
 			NavigationManager.NavigateTo("/logout", true);

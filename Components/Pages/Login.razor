@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
 @inject NavigationManager NavigationManager
+@inject LoginService LoginService
 
 <div class="row">
 	<div class="col-lg-4 offset-lg-4 pt-4 pb-4 border">
@@ -50,8 +51,7 @@
 
 	private async Task ValidSubmit()
 	{
-		LoginService loginService = new LoginService();
-		ServiceResponse response = await loginService.Login(HttpContext, Model);
+		ServiceResponse response = await LoginService.Login(HttpContext, Model);
 		if (response.Flag)
 		{
 			NavigationManager.NavigateTo("/");
