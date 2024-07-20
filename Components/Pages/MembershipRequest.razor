@@ -2,15 +2,16 @@
 @using Radzen
 @using MMS.Models.ViewModels
 @rendermode InteractiveServer
+@inject NotificationService NotificationService
 
 <PageTitle>Zahtjev za članstvom</PageTitle>
 <h3>Zahtjev za članstvom</h3>
 
-<RadzenCard>
+<RadzenCard Variant="Variant.Filled">
 	<RadzenTemplateForm TItem=MembershipRequestViewModel Data=@Model Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
 		<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center">
 			<RadzenFieldset Text="Osnovni podaci">
-				<RadzenRow>
+				<RadzenRow JustifyContent="JustifyContent.SpaceBetween">
 					<RadzenStack>
 						<RadzenLabel Text="Ime*:" Component="NameText"></RadzenLabel>
 						<RadzenTextBox @bind-Value=Model.Name Name="NameText" AllowClear="false" MaxLength="50" Placeholder="Vaše ime"></RadzenTextBox>
@@ -36,25 +37,28 @@
 				<RadzenStack>
 					<RadzenText>Napišite razlog zašto želite postati član.</RadzenText>
 					<RadzenLabel Text="Razlog:" Component="ReasonText"></RadzenLabel>
-					<RadzenTextArea @bind-Value=Model.MembershipReason Name="ReasonText" Placeholder="U nekoliko riječi opišite zašto želite postati član."></RadzenTextArea>
+					<RadzenTextArea @bind-Value=Model.MembershipReason Name="ReasonText" Placeholder="U nekoliko riječi opišite zašto želite postati član (nije obavezno)."></RadzenTextArea>
 				</RadzenStack>
 			</RadzenFieldset>
 
 			<RadzenFieldset Text="Ostali kontakti">
 				<RadzenStack>
-					<RadzenText>Ostali kontakti nisu nužni, no dobro dođu u slučaju da vas želimo kontaktirati.</RadzenText>
+					<RadzenText>Ostali kontakti nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
 					<RadzenRow>
 						<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" />
-						<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Warning" Icon="warning_amber" Text="Ukloni sve kontakte" />
+						<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Danger" Icon="warning_amber" Text="Ukloni sve kontakte" />
 					</RadzenRow>
 					<RadzenStack>
 						@foreach (var contact in Model.UserData)
 						{
 							<RadzenCard Variant="Variant.Filled">
-								<RadzenRow>
-									<RadzenDropDown @bind-Value=contact.Name Data=@possibleContacts />
-									<RadzenTextBox @bind-Value=contact.Value AllowClear="false" MaxLength="50" Placeholder=@contact.Name Name=@contact.Id.ToString() />
-									<RadzenRequiredValidator Component=@contact.Id.ToString() Text="Ne može ostati prazno!" />
+								<RadzenRow AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+									<RadzenRow AlignItems="AlignItems.Center">
+										<RadzenDropDown @bind-Value=contact.Name Data=@possibleContacts />
+										<RadzenTextBox @bind-Value=contact.Value AllowClear="false" MaxLength="80" Placeholder=@contact.Name Name=@contact.Id.ToString() />
+										<RadzenRequiredValidator Component=@contact.Id.ToString() Text="Ne može ostati prazno!" />
+									</RadzenRow>
+									<RadzenButton ButtonStyle="ButtonStyle.Danger" Text="🗙" JustifyContent="JustifyContent.End" Click=@(() => RemoveOneContact(contact.Id)) />
 								</RadzenRow>
 							</RadzenCard>
 						}
@@ -62,7 +66,11 @@
 				</RadzenStack>
 			</RadzenFieldset>
 
-			<RadzenButton ButtonType="ButtonType.Submit" Text="Pošalji" class="align-self-md-center" />
+			<RadzenButton ButtonType="ButtonType.Submit" Text="Pošalji" class="align-self-md-center" Disabled=@sending />
+			@if (sending)
+			{
+				<RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+			}
 		</RadzenStack>		
 	</RadzenTemplateForm>
 </RadzenCard>
@@ -84,24 +92,51 @@
 	};
 
 	public int contactId = 0;
+	public bool sending = false;
+
+	private void RemoveOneContact(int id)
+	{
+		Model.UserData.RemoveAll(ud => ud.Id == id);
+	}
 
 	private void RemoveAllContacts()
 	{
+		contactId = 0;
 		Model.UserData = new List<UserDataViewModel>();
 	}
 
 	private void AddContact()
 	{
-		Model.UserData.Add(new UserDataViewModel(contactId++));
+		string whichContact = "";
+		try
+		{
+			whichContact = possibleContacts.Where(c => !Model.UserData.Select(ud => ud.Name).Contains(c)).First();
+		} catch (Exception e)
+		{
+			ShowErrorNotification("Već imaš sve kontakte!");
+			return;
+		}
+		Model.UserData.Add(new UserDataViewModel(contactId++, whichContact));
+	}
+
+	private void ShowErrorNotification(string error)
+	{
+		NotificationService.Notify(new NotificationMessage
+		{
+			Severity = NotificationSeverity.Error,
+			Duration = 5000,
+			Summary = "Greška",
+			Detail = error
+		});
 	}
 
 	private async Task OnInvalidSubmit()
 	{
-
+		ShowErrorNotification("Podaci nisu ispravno uneseni.");
 	}
 
 	private async Task OnSubmit()
 	{
-
+		sending = true;
 	}
 }
