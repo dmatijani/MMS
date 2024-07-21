@@ -1,10 +1,12 @@
 ﻿@page "/admin/requests"
+@rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
 @using Radzen
 @using MMS.Models
 @using MMS.Services
 @using Microsoft.AspNetCore.Authorization
 @inject UserService UserService
+@inject NavigationManager NavigationManager
 
 <PageTitle>MMS - Trenutačni zahtjevi</PageTitle>
 <h3>Trenutačni zahtjevi</h3>
@@ -54,7 +56,7 @@
 							</RadzenColumn>
 							<RadzenColumn Style="padding: 10px" SizeLG="2" Class="rz-background-color-info-lighter rz-text-align-center">
 								<RadzenStack AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Style="height: 100%;">
-									<RadzenButton>Pregledaj</RadzenButton>
+									<RadzenButton Click=@(() => OpenRequestDetail(user.Id))>Pregledaj</RadzenButton>
 								</RadzenStack>
 							</RadzenColumn>
 						</RadzenRow>
@@ -73,5 +75,10 @@
 	{
 		NonApprovedRequests = await UserService.GetNonApprovedUsers();
 		loading = false;
+	}
+
+	private void OpenRequestDetail(int userId)
+	{
+		NavigationManager.NavigateTo($"/admin/requests/{userId}", false);
 	}
 }

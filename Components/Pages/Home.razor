@@ -2,7 +2,7 @@
 @using MMS.Data.Repositories
 @using MMS.Models
 @using System.Security.Claims
-@inject IRoleRepository RoleRepository
+@inject NavigationManager NavigationManager
 
 <PageTitle>MMS</PageTitle>
 
@@ -17,10 +17,6 @@
 					</NotAuthorized>
 					<Authorized>
 						<span>Hej, <b>@context.User.Identity?.Name</b>, pritisni <a href="/logout">ovdje</a> za odjavu.</span>
-						<br />
-						<span>Email: @context.User.FindFirst(ClaimTypes.Email)?.Value</span>
-						<br />
-						<span>Uloga: @context.User.FindFirst(ClaimTypes.Role)?.Value</span>
 					</Authorized>
 				</AuthorizeView>
 			</div>
@@ -28,15 +24,19 @@
 	</div>
 </div>
 
-@foreach (var role in roles)
-{
-	<p>@role.Name</p>
-}
-
 @code {
-	List<Role> roles = new List<Role>();
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationState { get; set; }
+
 	protected override async Task OnInitializedAsync()
 	{
-		roles = await RoleRepository.Get();
+		var state = await authenticationState;
+		if (state != null)
+		{
+			if (state.User.IsInRole("Admin"))
+			{
+				NavigationManager.NavigateTo("/admin");
+			}
+		}
 	}
 }

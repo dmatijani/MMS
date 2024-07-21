@@ -1,0 +1,121 @@
+﻿@page "/admin/requests/{userId:int}"
+@using MMS.Models
+@using MMS.Models.ViewModels
+@using MMS.Services
+@using Microsoft.AspNetCore.Authorization
+@using Radzen
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<PageTitle>MMS - Zahtjev</PageTitle>
+<h3>Pregled zahtjeva</h3>
+
+@if (user != null)
+{
+	<RadzenCard Class="rz-background-color-info-lighter">
+		<RadzenStack Style="overflow-x: auto;">
+			<RadzenText><span style="font-weight: bold;">Zahtjev zatražio/la:</span> @(user.Name + " " + user.Surname)</RadzenText>
+			<RadzenText><span style="font-weight: bold;">Primarna email adresa:</span> <code style="color: black">@user.Email</code></RadzenText>
+			<RadzenText><span style="font-weight: bold;">Ostali podaci:</span></RadzenText>
+			<ul>
+				@foreach (var contact in user.UserData)
+				{
+					<li>@contact.Name: @contact.Value</li>
+				}
+			</ul>
+			<RadzenText><span style="font-weight: bold;">Razlog učlanjenja:</span></RadzenText>
+			<RadzenCard Variant="Variant.Flat">
+				@if (user.MembershipReason != "")
+				{
+					<RadzenText>@user.MembershipReason</RadzenText>
+				}
+				else
+				{
+					<RadzenText Style="font-style: italic;" class="fw-lighter">Nije naveden.</RadzenText>
+				}
+			</RadzenCard>
+		</RadzenStack>
+	</RadzenCard>
+	<RadzenFieldset Text="Potvrda zahtjeva">
+		<RadzenText>Ovaj zahtjev možete potvrditi, ili ukloniti. Lozinka i pristupni podaci za korisnika automatski se generira i šalje tom korisniku na email.</RadzenText>
+		<RadzenRow JustifyContent="JustifyContent.SpaceEvenly">
+			<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="check_circle" Text="Potvrdi zahtjev" Disabled=@(sending || rejected || approved) />
+			<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="report" Text="Odbij zahtjev" Click=@(() => RejectRequestButtonClick()) Disabled=@(sending || rejected || approved) />
+		</RadzenRow>
+		@if (sending && !rejected && !approved)
+		{
+			<RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+		}
+	</RadzenFieldset>
+	if (rejected || approved)
+	{
+		<RadzenAlert AlertStyle="AlertStyle.Success" Title="Uspjeh!">
+			@if (rejected)
+			{
+				<span>Zahtjev je uspješno odbijen.</span>
+			} else
+			{
+				<span>Zahtjev je uspješno prihvaćen. Osoba @user.Name @user.Surname dobit će <span style="text-style: italic;">Rješenje o članstvu</span> na email adresu <code style="color: white;">@user.Email</code> s pristupnim podacima te podacima za plaćanje članarine.</span>
+			}
+			<br />
+			<a href="/admin/requests">Natrag na pregled zahtjeva</a>
+		</RadzenAlert>
+	}
+}
+
+@code {
+	[Parameter]
+	public int UserId { get; set; } = 0;
+
+	public User? user { get; set; } = null;
+
+	public bool sending = false;
+	public bool rejected = false;
+	public bool approved = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		user = await UserService.GetUserById(UserId, false);
+		if (user == null)
+		{
+			NavigationManager.NavigateTo("/admin/requests");
+			return;
+		}
+		if (!string.IsNullOrEmpty(user.Password))
+		{
+			NavigationManager.NavigateTo("/admin/requests");
+			return;
+		}
+	}
+
+	private async Task RejectRequestButtonClick()
+	{
+		bool? clicked = await DialogService.Confirm("Jesi li siguran da želiš odbiti zahtjev?", "Pazi!", new ConfirmOptions
+		{
+			OkButtonText = "Da",
+			CancelButtonText = "Ne"
+		});
+
+		if (clicked == null)
+		{
+			return;
+		}
+
+		if (clicked == true)
+		{
+			await RejectRequest();
+		}
+	}
+
+	private async Task RejectRequest()
+	{
+		sending = true;
+		await UserService.RejectRequest(user);
+		sending = false;
+		rejected = true;
+	}
+}

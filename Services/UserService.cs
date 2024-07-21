@@ -31,6 +31,27 @@ namespace MMS.Services
 			return (await _repo.Get()).Where(u => !u.Approved).ToList();
 		}
 
+		public async Task<User?> GetUserById(int userId, bool approved = true)
+		{
+			User? user = await _repo.Get(userId);
+			if (user == null)
+			{
+				return null;
+			}
+
+			return (user.Approved != approved) ? null : user;
+		}
+
+		public async Task RejectRequest(User user)
+		{
+			if (user.Approved == true)
+			{
+				return;
+			}
+
+			await _repo.Delete(user);
+		}
+
 		public async Task<ServiceResponse> SendNewMembershipRequest(MembershipRequestViewModel model)
 		{
 			bool membershipDataIsValid = CheckIfDataIsValid(model);
