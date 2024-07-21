@@ -1,0 +1,77 @@
+﻿@page "/admin/requests"
+@attribute [Authorize(Roles = "Admin")]
+@using Radzen
+@using MMS.Models
+@using MMS.Services
+@using Microsoft.AspNetCore.Authorization
+@inject UserService UserService
+
+<PageTitle>MMS - Trenutačni zahtjevi</PageTitle>
+<h3>Trenutačni zahtjevi</h3>
+
+<RadzenText>Na ovoj stranici moguće je vidjeti sve trenutačne zahtjeve za članstvom.</RadzenText>
+
+<RadzenRow JustifyContent="JustifyContent.Center">
+	@if (loading)
+	{
+		<RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Large" />
+	} else
+	{
+		if (NonApprovedRequests.Count == 0)
+		{
+			<RadzenStack AlignItems="AlignItems.Center">
+				<RadzenText>Nema trenutačnih zahtjeva!</RadzenText>
+				<RadzenText><a href="/admin">Natrag na administratorsku početnu stranicu.</a></RadzenText>
+			</RadzenStack>
+		} else
+		{
+			<RadzenDataList AllowVirtualization="false" WrapItems="true" AllowPaging="true" Data=@NonApprovedRequests TItem="User" PageSize="5" ShowPagingSummary="true">
+				<Template Context="user">
+					<RadzenCard class="rz-p-0" Style="width: 100%; overflow: hidden;">
+						<RadzenRow JustifyContent="JustifyContent.SpaceBetween">
+							<RadzenColumn Class="rz-background-color-info-lighter" Style="padding: 10px" SizeLG="3">
+								<RadzenText TextStyle="TextStyle.H6">@(user.Name + " " + user.Surname)</RadzenText>
+								<RadzenText><code style="color: black;">@user.Email</code></RadzenText>
+							</RadzenColumn>
+							<RadzenColumn Style="padding: 10px; overflow-x: auto;" SizeLG="3">
+								<RadzenText TextStyle="TextStyle.H6">Ostali podaci:</RadzenText>
+								<ul>
+									@foreach (var contact in user.UserData)
+									{
+										<li>@contact.Name: @contact.Value</li>
+									}
+								</ul>
+							</RadzenColumn>
+							<RadzenColumn Style="padding: 10px" SizeLG="4">
+								<RadzenText TextStyle="TextStyle.H6">Razlog zahtjeva:</RadzenText>
+								@if (user.MembershipReason != "")
+								{
+									<RadzenText>@user.MembershipReason</RadzenText>
+								} else
+								{
+									<RadzenText Style="font-style: italic;" class="fw-lighter">Nije naveden.</RadzenText>
+								}
+							</RadzenColumn>
+							<RadzenColumn Style="padding: 10px" SizeLG="2" Class="rz-background-color-info-lighter rz-text-align-center">
+								<RadzenStack AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Style="height: 100%;">
+									<RadzenButton>Pregledaj</RadzenButton>
+								</RadzenStack>
+							</RadzenColumn>
+						</RadzenRow>
+					</RadzenCard>
+				</Template>
+			</RadzenDataList>
+		}
+	}
+</RadzenRow>
+
+@code {
+	public List<User> NonApprovedRequests { get; set; } = new List<User>();
+	bool loading = true;
+
+	protected override async Task OnInitializedAsync()
+	{
+		NonApprovedRequests = await UserService.GetNonApprovedUsers();
+		loading = false;
+	}
+}

@@ -26,6 +26,11 @@ namespace MMS.Services
 			return users.FirstOrDefault(u => u.Email == model.Email && u.Password == model.Password && u.Approved);
 		}
 
+		public async Task<List<User>> GetNonApprovedUsers()
+		{
+			return (await _repo.Get()).Where(u => !u.Approved).ToList();
+		}
+
 		public async Task<ServiceResponse> SendNewMembershipRequest(MembershipRequestViewModel model)
 		{
 			bool membershipDataIsValid = CheckIfDataIsValid(model);

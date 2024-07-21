@@ -51,10 +51,16 @@
 
 	private async Task ValidSubmit()
 	{
-		ServiceResponse response = await LoginService.Login(HttpContext, Model);
+		LoginServiceResponse response = await LoginService.Login(HttpContext, Model);
 		if (response.Flag)
 		{
-			NavigationManager.NavigateTo("/");
+			if (response.Role == "Admin")
+			{
+				NavigationManager.NavigateTo("/admin");
+			} else
+			{
+				NavigationManager.NavigateTo("/");
+			}
 		} else
 		{
 			error = response.Message;

@@ -19,16 +19,16 @@ namespace MMS.Services
             _userService = userService;
         }
 
-        public async Task<ServiceResponse> Login(HttpContext httpContext, LoginViewModel model)
+        public async Task<LoginServiceResponse> Login(HttpContext httpContext, LoginViewModel model)
         {
             var user = await _userService.GetUserByLoginInformation(model);
             if (user == null)
             {
-				return new ServiceResponse(false, "Pogrešan email ili lozinka");
+				return new LoginServiceResponse(false, "", "Pogrešan email ili lozinka");
 			}
 
             await Authenticate(httpContext, user);
-            return new ServiceResponse(true, "Prijava uspješna");
+            return new LoginServiceResponse(true, user.Role.Name, "Prijava uspješna");
         }
 
 		private async Task Authenticate(HttpContext httpContext, User user)

@@ -1,0 +1,29 @@
+﻿@page "/admin"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
+@using MMS.Data.Repositories
+@using MMS.Models
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+
+<PageTitle>MMS - Administratorske kontrole</PageTitle>
+<h3>Administratorske kontrole</h3>
+
+<AuthorizeView>
+	<RadzenStack>
+		<RadzenCard>
+			<span>Dobrodošao, <b>@context.User.Identity?.Name</b>, pritisni <a href="/logout">ovdje</a> za odjavu.</span>
+		</RadzenCard>
+		<RadzenButton Text="Trenutačni zahtjevi" Style="max-width: 300px" Click="@CurrentRequestsButton" />
+		<RadzenButton Text="Postojeći korisnici (WIP)" Style="max-width: 300px" />
+		<RadzenButton Text="Uplate (WIP)" Style="max-width: 300px" />
+	</RadzenStack>
+</AuthorizeView>
+
+@code {
+	private void CurrentRequestsButton()
+	{
+		NavigationManager.NavigateTo("/admin/requests");
+	}
+}

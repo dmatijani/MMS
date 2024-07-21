@@ -26,7 +26,7 @@ namespace MMS.Data.Repositories
 
 		public async Task<List<User>> Get()
 		{
-			return await _context.Users.Include(u => u.Role).ToListAsync();
+			return await _context.Users.Include(u => u.Role).Include(u => u.UserData).ToListAsync();
 		}
 
 		public async Task<User?> Get(int id)
