@@ -1,6 +1,7 @@
 ﻿@page "/admin/requests"
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
+@attribute [StreamRendering]
 @using Radzen
 @using MMS.Models
 @using MMS.Services

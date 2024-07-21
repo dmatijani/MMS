@@ -7,6 +7,7 @@
 @using Radzen
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
+@attribute [StreamRendering]
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 @inject NotificationService NotificationService
@@ -15,58 +16,63 @@
 <PageTitle>MMS - Zahtjev</PageTitle>
 <h3>Pregled zahtjeva</h3>
 
-@if (user != null)
-{
-	<RadzenCard Class="rz-background-color-info-lighter">
-		<RadzenStack Style="overflow-x: auto;">
-			<RadzenText><span style="font-weight: bold;">Zahtjev zatražio/la:</span> @(user.Name + " " + user.Surname)</RadzenText>
-			<RadzenText><span style="font-weight: bold;">Primarna email adresa:</span> <code style="color: black">@user.Email</code></RadzenText>
-			<RadzenText><span style="font-weight: bold;">Ostali podaci:</span></RadzenText>
-			<ul>
-				@foreach (var contact in user.UserData)
-				{
-					<li>@contact.Name: @contact.Value</li>
-				}
-			</ul>
-			<RadzenText><span style="font-weight: bold;">Razlog učlanjenja:</span></RadzenText>
-			<RadzenCard Variant="Variant.Flat">
-				@if (user.MembershipReason != "")
-				{
-					<RadzenText>@user.MembershipReason</RadzenText>
-				}
-				else
-				{
-					<RadzenText Style="font-style: italic;" class="fw-lighter">Nije naveden.</RadzenText>
-				}
-			</RadzenCard>
-		</RadzenStack>
-	</RadzenCard>
-	<RadzenFieldset Text="Potvrda zahtjeva">
-		<RadzenText>Ovaj zahtjev možete potvrditi, ili ukloniti. Lozinka i pristupni podaci za korisnika automatski se generira i šalje tom korisniku na email.</RadzenText>
-		<RadzenRow JustifyContent="JustifyContent.SpaceEvenly">
-			<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="check_circle" Text="Potvrdi zahtjev" Click=@ApproveRequestButtonClick Disabled=@(sending || rejected || approved) />
-			<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="report" Text="Odbij zahtjev" Click=@RejectRequestButtonClick Disabled=@(sending || rejected || approved) />
-		</RadzenRow>
-		@if (sending && !rejected && !approved)
-		{
-			<RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
-		}
-	</RadzenFieldset>
-	if (rejected || approved)
+<RadzenRow JustifyContent="JustifyContent.Center">
+	@if (user == null || loading)
 	{
-		<RadzenAlert AlertStyle="AlertStyle.Success" Title="Uspjeh!">
-			@if (rejected)
+		<RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Large" />
+	} else
+	{
+		<RadzenCard Class="rz-background-color-info-lighter" Style="width: 100%;">
+			<RadzenStack Style="overflow-x: auto;">
+				<RadzenText><span style="font-weight: bold;">Zahtjev zatražio/la:</span> @(user.Name + " " + user.Surname)</RadzenText>
+				<RadzenText><span style="font-weight: bold;">Primarna email adresa:</span> <code style="color: black">@user.Email</code></RadzenText>
+				<RadzenText><span style="font-weight: bold;">Ostali podaci:</span></RadzenText>
+				<ul>
+					@foreach (var contact in user.UserData)
+					{
+						<li>@contact.Name: @contact.Value</li>
+					}
+				</ul>
+				<RadzenText><span style="font-weight: bold;">Razlog učlanjenja:</span></RadzenText>
+				<RadzenCard Variant="Variant.Flat">
+					@if (user.MembershipReason != "")
+					{
+						<RadzenText>@user.MembershipReason</RadzenText>
+					}
+					else
+					{
+						<RadzenText Style="font-style: italic;" class="fw-lighter">Nije naveden.</RadzenText>
+					}
+				</RadzenCard>
+			</RadzenStack>
+		</RadzenCard>
+		<RadzenFieldset Text="Potvrda zahtjeva" Style="width: 100%;">
+			<RadzenText>Ovaj zahtjev možete potvrditi, ili ukloniti. Lozinka i pristupni podaci za korisnika automatski se generira i šalje tom korisniku na email.</RadzenText>
+			<RadzenRow JustifyContent="JustifyContent.SpaceEvenly">
+				<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="check_circle" Text="Potvrdi zahtjev" Click=@ApproveRequestButtonClick Disabled=@(sending || rejected || approved) />
+				<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="report" Text="Odbij zahtjev" Click=@RejectRequestButtonClick Disabled=@(sending || rejected || approved) />
+			</RadzenRow>
+			@if (sending && !rejected && !approved)
 			{
-				<span>Zahtjev je uspješno odbijen.</span>
-			} else
-			{
-				<span>Zahtjev je uspješno prihvaćen. Osoba @user.Name @user.Surname dobit će <span style="font-style: italic;">Rješenje o članstvu</span> na email adresu <code style="color: white;">@user.Email</code> s pristupnim podacima te podacima za plaćanje članarine.</span>
+				<RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
 			}
-			<br />
-			<a href="/admin/requests">Natrag na pregled zahtjeva</a>
-		</RadzenAlert>
+		</RadzenFieldset>
+		if (rejected || approved)
+		{
+			<RadzenAlert AlertStyle="AlertStyle.Success" Title="Uspjeh!">
+				@if (rejected)
+				{
+					<span>Zahtjev je uspješno odbijen.</span>
+				} else
+				{
+					<span>Zahtjev je uspješno prihvaćen. Osoba @user.Name @user.Surname dobit će <span style="font-style: italic;">Rješenje o članstvu</span> na email adresu <code style="color: white;">@user.Email</code> s pristupnim podacima te podacima za plaćanje članarine.</span>
+				}
+				<br />
+				<a href="/admin/requests">Natrag na pregled zahtjeva</a>
+			</RadzenAlert>
+		}
 	}
-}
+</RadzenRow>
 
 @code {
 	[Parameter]
@@ -74,6 +80,7 @@
 
 	public User? user { get; set; } = null;
 
+	public bool loading = true;
 	public bool sending = false;
 	public bool rejected = false;
 	public bool approved = false;
@@ -91,6 +98,8 @@
 			NavigationManager.NavigateTo("/admin/requests");
 			return;
 		}
+
+		loading = false;
 	}
 
 	private async Task RejectRequestButtonClick()
