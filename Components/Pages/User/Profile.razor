@@ -1,0 +1,149 @@
+﻿@page "/profile"
+@using MMS.Models
+@using MMS.Models.ViewModels
+@using MMS.Services
+@using Microsoft.AspNetCore.Authorization
+@using Radzen
+@using System.Security.Claims
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "User")]
+@attribute [StreamRendering]
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+
+<PageTitle>MMS - Moj profil</PageTitle>
+<h3>Moj profil</h3>
+
+<RadzenRow JustifyContent="JustifyContent.Center">
+	@if (user == null || loading)
+	{
+		<RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Large" />
+	}
+	else
+	{
+		<RadzenCard Class="rz-background-color-info-lighter" Style="width: 100%;">
+			<RadzenStack Style="overflow-x: auto;">
+				<RadzenText TextStyle="TextStyle.H6">@(user.Name + " " + user.Surname)</RadzenText>
+				<RadzenText><span style="font-weight: bold;">Primarna email adresa:</span> <code style="color: black">@user.Email</code></RadzenText>
+			</RadzenStack>
+		</RadzenCard>
+		<RadzenFieldset Text="Ostali kontakti" Style="width: 100%;">
+			<RadzenStack>
+				<RadzenText>Ovo su vaši ostali kontakti. Oni nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
+				<RadzenRow>
+					<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" />
+					<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Danger" Icon="warning_amber" Text="Ukloni sve kontakte" />
+				</RadzenRow>
+				<RadzenStack>
+					@foreach (var contact in UserData)
+					{
+						<RadzenCard Variant="Variant.Filled">
+							<RadzenRow AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+								<RadzenRow AlignItems="AlignItems.Center">
+									<RadzenDropDown @bind-Value=contact.Name Data=@possibleContacts />
+									<RadzenTextBox @bind-Value=contact.Value AllowClear="false" MaxLength="80" Placeholder=@contact.Name Name=@contact.Id.ToString() />
+									<RadzenRequiredValidator Component=@contact.Id.ToString() Text="Ne može ostati prazno!" />
+								</RadzenRow>
+								<RadzenButton ButtonStyle="ButtonStyle.Danger" Text="🗙" JustifyContent="JustifyContent.End" Click=@(() => RemoveOneContact(contact.Id)) />
+							</RadzenRow>
+						</RadzenCard>
+					}
+				</RadzenStack>
+			</RadzenStack>
+		</RadzenFieldset>
+	}
+</RadzenRow>
+
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationState { get; set; }
+
+	public User? user { get; set; } = null;
+	public List<UserDataViewModel> UserData = new List<UserDataViewModel>();
+
+	public bool loading = true;
+
+	public List<string> possibleContacts = new List<string>
+	{
+		"Sekundarni email",
+		"Mobilni telefon",
+		"Fiksni telefon",
+		"Adresa",
+		"Web mjesto",
+		"Društvena mreža"
+	};
+
+	public int contactId = 0;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var state = await authenticationState;
+		if (state == null)
+		{
+			NavigationManager.NavigateTo("/");
+			return;
+		}
+
+		int userId;
+		bool parsed = int.TryParse(state.User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
+		if (!parsed)
+		{
+			NavigationManager.NavigateTo("/");
+			return;
+		}
+
+		user = await UserService.GetUserById(userId);
+		if (user == null)
+		{
+			NavigationManager.NavigateTo("/");
+			return;
+		}
+
+		UserData = user.UserData.Select(ud =>
+			new UserDataViewModel(
+				contactId++,
+				ud.Name,
+				ud.Value
+			)
+		).ToList();
+
+		loading = false;
+	}
+
+	private void RemoveOneContact(int id)
+	{
+		UserData.RemoveAll(ud => ud.Id == id);
+	}
+
+	private void RemoveAllContacts()
+	{
+		contactId = 0;
+		UserData = new List<UserDataViewModel>();
+	}
+
+	private void AddContact()
+	{
+		string whichContact = "";
+		try
+		{
+			whichContact = possibleContacts.Where(c => !UserData.Select(ud => ud.Name).Contains(c)).First();
+		} catch (Exception e)
+		{
+			ShowErrorNotification("Već imaš sve kontakte!");
+			return;
+		}
+		UserData.Add(new UserDataViewModel(contactId++, whichContact));
+	}
+
+	private void ShowErrorNotification(string error)
+	{
+		NotificationService.Notify(new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Duration = 5000,
+				Summary = "Greška",
+				Detail = error
+			});
+	}
+}
