@@ -2,6 +2,7 @@
 @using MMS.Models
 @using MMS.Models.ViewModels
 @using MMS.Services
+@using MMS.Services.Responses
 @using Microsoft.AspNetCore.Authorization
 @using Radzen
 @rendermode InteractiveServer
@@ -43,8 +44,8 @@
 	<RadzenFieldset Text="Potvrda zahtjeva">
 		<RadzenText>Ovaj zahtjev možete potvrditi, ili ukloniti. Lozinka i pristupni podaci za korisnika automatski se generira i šalje tom korisniku na email.</RadzenText>
 		<RadzenRow JustifyContent="JustifyContent.SpaceEvenly">
-			<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="check_circle" Text="Potvrdi zahtjev" Disabled=@(sending || rejected || approved) />
-			<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="report" Text="Odbij zahtjev" Click=@(() => RejectRequestButtonClick()) Disabled=@(sending || rejected || approved) />
+			<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="check_circle" Text="Potvrdi zahtjev" Click=@ApproveRequestButtonClick Disabled=@(sending || rejected || approved) />
+			<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="report" Text="Odbij zahtjev" Click=@RejectRequestButtonClick Disabled=@(sending || rejected || approved) />
 		</RadzenRow>
 		@if (sending && !rejected && !approved)
 		{
@@ -59,7 +60,7 @@
 				<span>Zahtjev je uspješno odbijen.</span>
 			} else
 			{
-				<span>Zahtjev je uspješno prihvaćen. Osoba @user.Name @user.Surname dobit će <span style="text-style: italic;">Rješenje o članstvu</span> na email adresu <code style="color: white;">@user.Email</code> s pristupnim podacima te podacima za plaćanje članarine.</span>
+				<span>Zahtjev je uspješno prihvaćen. Osoba @user.Name @user.Surname dobit će <span style="font-style: italic;">Rješenje o članstvu</span> na email adresu <code style="color: white;">@user.Email</code> s pristupnim podacima te podacima za plaćanje članarine.</span>
 			}
 			<br />
 			<a href="/admin/requests">Natrag na pregled zahtjeva</a>
@@ -111,11 +112,57 @@
 		}
 	}
 
+	private async Task ApproveRequestButtonClick()
+	{
+		bool? clicked = await DialogService.Confirm("Jesi li siguran da želiš potvrditi ovaj zahtjev?", "Pazi!", new ConfirmOptions
+			{
+				OkButtonText = "Da",
+				CancelButtonText = "Ne"
+			});
+
+		if (clicked == null)
+		{
+			return;
+		}
+
+		if (clicked == true)
+		{
+			await ApproveRequest();
+		}
+	}
+
+	private void ShowErrorNotification(string error)
+	{
+		NotificationService.Notify(new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Duration = 5000,
+				Summary = "Greška",
+				Detail = error
+			});
+	}
+
 	private async Task RejectRequest()
 	{
 		sending = true;
-		await UserService.RejectRequest(user);
+		ServiceResponse response = await UserService.RejectRequest(user);
 		sending = false;
-		rejected = true;
+		rejected = response.Flag;
+		if (!response.Flag)
+		{
+			ShowErrorNotification(response.Message);
+		}
+	}
+
+	private async Task ApproveRequest()
+	{
+		sending = true;
+		ServiceResponse response = await UserService.ApproveRequest(user);
+		sending = false;
+		approved = response.Flag;
+		if (!response.Flag)
+		{
+			ShowErrorNotification(response.Message);
+		}
 	}
 }

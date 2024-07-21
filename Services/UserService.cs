@@ -42,14 +42,28 @@ namespace MMS.Services
 			return (user.Approved != approved) ? null : user;
 		}
 
-		public async Task RejectRequest(User user)
+		public async Task<ServiceResponse> RejectRequest(User user)
 		{
 			if (user.Approved == true)
 			{
-				return;
+				return new ServiceResponse(false, "Problem s spajanjem na bazu.");
 			}
 
 			await _repo.Delete(user);
+			return new ServiceResponse(true, "Uspjeh");
+		}
+
+		public async Task<ServiceResponse> ApproveRequest(User user)
+		{
+			if (user.Approved == true)
+			{
+				return new ServiceResponse(false, "Problem s spajanjem na bazu.");
+			}
+
+			user.Approved = true;
+			user.Password = GeneratePassword();
+			await _repo.Update(user);
+			return new ServiceResponse(true, "Uspjeh");
 		}
 
 		public async Task<ServiceResponse> SendNewMembershipRequest(MembershipRequestViewModel model)
@@ -145,6 +159,21 @@ namespace MMS.Services
 			await _roleRepo.Create(newRole);
 			var newRoleFromDb = (await _roleRepo.Get()).FirstOrDefault(r => r.Name == roleName);
 			return newRoleFromDb.Id;
+		}
+
+		private string GeneratePassword()
+		{
+			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!!!!!";
+			Random random = new Random();
+			int stringLength = random.Next(12, 16);
+			char[] randomArray = new char[stringLength];
+
+			for (int i = 0; i < stringLength; i ++)
+			{
+				randomArray[i] = chars[random.Next(chars.Length)];
+			}
+
+			return new string(randomArray);
 		}
 	}
 }
