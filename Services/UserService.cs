@@ -108,6 +108,18 @@ namespace MMS.Services
 			return new ServiceResponse(true, "Zahtjev poslan!");
 		}
 
+		public async Task<ServiceResponse> Update(User user)
+		{
+			try
+			{
+				await _repo.Update(user);
+			} catch (Exception ex)
+			{
+				return new ServiceResponse(false, "Problem s spajanjem na bazu.");
+			}
+			return new ServiceResponse(true, "Korisnik ažuriran!");
+		}
+
 		private bool CheckIfDataIsValid(MembershipRequestViewModel model)
 		{
 			if (model.Name == null || model.Name.Trim() == "" || model.Name.Trim().Length > 50) return false;

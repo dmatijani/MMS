@@ -2,6 +2,7 @@
 @using MMS.Models
 @using MMS.Models.ViewModels
 @using MMS.Services
+@using MMS.Services.Responses
 @using Microsoft.AspNetCore.Authorization
 @using Radzen
 @using System.Security.Claims
@@ -32,8 +33,8 @@
 			<RadzenStack>
 				<RadzenText>Ovo su vaši ostali kontakti. Oni nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
 				<RadzenRow>
-					<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" />
-					<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Danger" Icon="warning_amber" Text="Ukloni sve kontakte" />
+					<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" Disabled=@updatingContacts />
+					<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Danger" Icon="warning_amber" Text="Ukloni sve kontakte" Disabled=@updatingContacts />
 				</RadzenRow>
 				<RadzenStack>
 					@foreach (var contact in UserData)
@@ -45,12 +46,13 @@
 									<RadzenTextBox @bind-Value=contact.Value AllowClear="false" MaxLength="80" Placeholder=@contact.Name Name=@contact.Id.ToString() />
 									<RadzenRequiredValidator Component=@contact.Id.ToString() Text="Ne može ostati prazno!" />
 								</RadzenRow>
-								<RadzenButton ButtonStyle="ButtonStyle.Danger" Text="🗙" JustifyContent="JustifyContent.End" Click=@(() => RemoveOneContact(contact.Id)) />
+								<RadzenButton ButtonStyle="ButtonStyle.Danger" Text="🗙" JustifyContent="JustifyContent.End" Click=@(() => RemoveOneContact(contact.Id)) Disabled=@updatingContacts />
 							</RadzenRow>
 						</RadzenCard>
 					}
 				</RadzenStack>
 			</RadzenStack>
+			<RadzenButton ButtonStyle="ButtonStyle.Success" Text="Ažuriraj kontakte" Click=@SaveContacts Disabled=@updatingContacts />
 		</RadzenFieldset>
 	}
 </RadzenRow>
@@ -63,6 +65,7 @@
 	public List<UserDataViewModel> UserData = new List<UserDataViewModel>();
 
 	public bool loading = true;
+	public bool updatingContacts = false;
 
 	public List<string> possibleContacts = new List<string>
 	{
@@ -145,5 +148,35 @@
 				Summary = "Greška",
 				Detail = error
 			});
+	}
+
+	private void ShowSuccessNotification(string message)
+	{
+		NotificationService.Notify(new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Duration = 5000,
+				Summary = "Uspjeh",
+				Detail = message
+			});
+	}
+
+	private async Task SaveContacts()
+	{
+		updatingContacts = true;
+		user.UserData = UserData.Select(ud => new UserData
+		{
+			Name = ud.Name,
+			Value = ud.Value
+		}).ToList();
+		ServiceResponse response = await UserService.Update(user);
+		if (!response.Flag)
+		{
+			ShowErrorNotification(response.Message);
+		} else
+		{
+			ShowSuccessNotification("Kontakti su uspješno ažurirani.");
+		}
+		updatingContacts = false;
 	}
 }
