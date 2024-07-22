@@ -31,7 +31,7 @@ namespace MMS.Data.Repositories
 
 		public async Task<User?> Get(int id)
 		{
-			return await _context.Users.Include(u => u.Role).Include(u => u.UserData).Include(u => u.UserData).Where(x => x.Id == id).FirstOrDefaultAsync();
+			return await _context.Users.Include(u => u.Role).Include(u => u.UserData).Include(u => u.Payments).Where(x => x.Id == id).FirstOrDefaultAsync();
 		}
 
 		public async Task Update(User entity)

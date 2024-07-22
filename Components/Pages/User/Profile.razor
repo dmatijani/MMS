@@ -24,11 +24,73 @@
 	}
 	else
 	{
+		if (!isMember)
+		{
+			<RadzenAlert AlertStyle="AlertStyle.Danger" AllowClose="false">
+				@if (!hasPayments)
+				{
+					<span>
+						Tvoj zahtjev za članstvom je odobren, no još nisi član! Potrebno je uplatiti članarinu. Članarina se plaća za godinu i članstvo
+						vrijedi godinu dana od dana plaćanja. 
+					</span>
+					<RadzenButton>Uplati</RadzenButton>
+				}
+				else
+				{
+					<span>Tvoje članstvo je isteklo! Datum zadnje uplate: @lastPayment!.Date.ToString("dd.MM.yyyy."), što je duže od godinu dana. </span>
+					<RadzenButton>Uplati</RadzenButton>
+				}
+			</RadzenAlert>
+		} else
+		{
+			<RadzenAlert AlertStyle="AlertStyle.Success" AllowClose=@(isMember)>
+				<span>Tvoje članstvo je aktivno! Datum zadnje uplate: @lastPayment!.Date.ToString("dd.MM.yyyy.") </span>
+				@if (canPay)
+				{
+					<RadzenButton>Uplati</RadzenButton>
+				}
+			</RadzenAlert>
+		}
 		<RadzenCard Class="rz-background-color-info-lighter" Style="width: 100%;">
 			<RadzenStack Style="overflow-x: auto;">
 				<RadzenText TextStyle="TextStyle.H6">@(user.Name + " " + user.Surname)</RadzenText>
 				<RadzenText><span style="font-weight: bold;">Primarna email adresa:</span> <code style="color: black">@user.Email</code></RadzenText>
 				<RadzenText><span style="font-weight: bold;">Član/ica od:</span> @user.MembershipApprovalDate.ToString("dd.MM.yyyy. u HH:mm:ss")</RadzenText>
+				<RadzenText>
+					<span style="font-weight: bold;">Status članstva: </span>
+					@if (isMember) {
+						<span style="color: green;">Aktivan</span>
+					}
+					else
+					{
+						<span style="color: red;">Neaktivan</span>
+					}
+				</RadzenText>
+				@if (hasPayments)
+				{
+					<RadzenText><span style="font-weight: bold;">Zadnja uplata članarine:</span> @lastPayment!.Date.ToString("dd.MM.yyyy.")</RadzenText>
+				}
+				@if (isMember)
+				{
+					<RadzenText>
+						<span style="font-weight: bold;">Članarina vrijedi do:</span> @lastPayment!.Date.AddYears(1).ToString("dd.MM.yyyy.")
+						<span> (broj dana: @((lastPayment!.Date.AddYears(1) - DateTime.Now.Date).Days))</span>
+					</RadzenText>
+				}
+				<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+					@if (canPay)
+					{
+						if (isMember)
+						{
+							<RadzenText>Pošto je članarina uplaćena prošle godine, iako i dalje vrijedi, možete uplatiti članstvo za ovu godinu. Uplata vrijedi godinu dana:</RadzenText>
+						}
+						else
+						{
+							<RadzenText>Morate uplatiti članarinu:</RadzenText>
+						}
+						<RadzenButton Style="width: 200px;" Text="Uplati članarinu" />
+					}
+				</RadzenStack>
 			</RadzenStack>
 		</RadzenCard>
 		<RadzenTemplateForm TItem="List<UserDataViewModel>" Data=@UserData Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit Style="width: 100%;">
@@ -69,9 +131,14 @@
 
 	public User? user { get; set; } = null;
 	public List<UserDataViewModel> UserData = new List<UserDataViewModel>();
+	public Payment? lastPayment { get; set; } = null;
 
 	public bool loading = true;
 	public bool updatingContacts = false;
+
+	public bool hasPayments = false;
+	public bool isMember = false;
+	public bool canPay = true;
 
 	public List<string> possibleContacts = new List<string>
 	{
@@ -109,6 +176,8 @@
 			return;
 		}
 
+		CheckPaymentInfo();
+
 		UserData = user.UserData.Select(ud =>
 			new UserDataViewModel(
 				contactId++,
@@ -145,7 +214,29 @@
 		UserData.Add(new UserDataViewModel(contactId++, whichContact));
 	}
 
-	
+	private void CheckPaymentInfo()
+	{
+		var payments = user!.Payments.ToList();
+
+		if (payments.Count == 0)
+		{
+			isMember = false;
+			canPay = true;
+			return;
+		}
+
+		hasPayments = true;
+		lastPayment = payments.OrderByDescending(p => p.Date).First();
+		if (lastPayment.Date.AddYears(1).Date < DateTime.Now.Date)
+		{
+			isMember = false;
+			canPay = true;
+			return;
+		}
+
+		isMember = true;
+		canPay = !(lastPayment.Year == DateTime.Now.Year);
+	}
 
 	private void OnInvalidSubmit()
 	{
