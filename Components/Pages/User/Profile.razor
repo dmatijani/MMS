@@ -13,6 +13,7 @@
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 @inject Notifications Notifications
+@inject DialogService DialogService
 
 <PageTitle>MMS - Moj profil</PageTitle>
 <h3>Moj profil</h3>
@@ -33,12 +34,12 @@
 						Tvoj zahtjev za članstvom je odobren, no još nisi član! Potrebno je uplatiti članarinu. Članarina se plaća za godinu i članstvo
 						vrijedi godinu dana od dana plaćanja. 
 					</span>
-					<RadzenButton>Uplati</RadzenButton>
+					<RadzenButton Click=@OpenPaymentDialog>Uplati</RadzenButton>
 				}
 				else
 				{
 					<span>Tvoje članstvo je isteklo! Datum zadnje uplate: @lastPayment!.Date.ToString("dd.MM.yyyy."), što je duže od godinu dana. </span>
-					<RadzenButton>Uplati</RadzenButton>
+					<RadzenButton Click=@OpenPaymentDialog>Uplati</RadzenButton>
 				}
 			</RadzenAlert>
 		} else
@@ -47,7 +48,7 @@
 				<span>Tvoje članstvo je aktivno! Datum zadnje uplate: @lastPayment!.Date.ToString("dd.MM.yyyy.") </span>
 				@if (canPay)
 				{
-					<RadzenButton>Uplati</RadzenButton>
+					<RadzenButton Click=@OpenPaymentDialog>Uplati</RadzenButton>
 				}
 			</RadzenAlert>
 		}
@@ -89,7 +90,7 @@
 						{
 							<RadzenText>Morate uplatiti članarinu:</RadzenText>
 						}
-						<RadzenButton Style="width: 200px;" Text="Uplati članarinu" />
+						<RadzenButton Style="width: 200px;" Text="Uplati članarinu" Click=@OpenPaymentDialog />
 					}
 				</RadzenStack>
 			</RadzenStack>
@@ -252,5 +253,20 @@
 			Notifications.ShowSuccessNotification("Kontakti su uspješno ažurirani.");
 		}
 		updatingContacts = false;
+	}
+
+	private async Task OpenPaymentDialog()
+	{
+		var result = await DialogService.OpenAsync("Potvrda o uplati", ds =>
+			@<RadzenStack>
+				<RadzenText>Prenesi potvrdu o uplati (PDF, maksimalna veličina datoteke: 1MB):</RadzenText>
+				<RadzenButton Text="Prenesi" Click=@CreateNewPayment />
+			</RadzenStack>
+		);
+	}
+
+	private async Task CreateNewPayment()
+	{
+		
 	}
 }
