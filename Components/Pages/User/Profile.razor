@@ -11,6 +11,7 @@
 @attribute [Authorize(Roles = "User")]
 @attribute [StreamRendering]
 @inject UserService UserService
+@inject PaymentService PaymentService
 @inject NavigationManager NavigationManager
 @inject Notifications Notifications
 @inject DialogService DialogService
@@ -220,6 +221,9 @@
 
 	private void CheckPaymentInfo()
 	{
+		lastPayment = null;
+		hasPayments = false;
+		canPay = true;
 		var payments = user!.Payments.ToList();
 
 		if (payments.Count == 0)
@@ -242,7 +246,7 @@
 	private async Task OnSubmit()
 	{
 		updatingContacts = true;
-		user.UserData = UserData.Select(ud => new UserData
+		user!.UserData = UserData.Select(ud => new UserData
 		{
 			Name = ud.Name,
 			Value = ud.Value
@@ -265,9 +269,9 @@
 				<RadzenText>Prenesi potvrdu o uplati (PDF, maksimalna veličina datoteke: 1MB):</RadzenText>
 					<RadzenUpload @ref="uploadComponent" Icon="upload" ChooseText="Prenesi" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "select file" }})"
 						Multiple="false" Change=@OnUploadChange Accept="application/pdf" />
-				<RadzenButton Text="Prenesi" Click=@CreateNewPayment />
+				<RadzenButton Text="Prenesi" Click=@(async () => { await CreateNewPayment(); ds.Close(); }) />
 			</RadzenStack>
-	);
+		);
 	}
 
 	private async Task<byte[]> ConvertFileToByteArray(FileInfo file)
@@ -326,6 +330,27 @@
 			return;
 		}
 
-		Notifications.ShowSuccessNotification(uploadedFileBytes.Length.ToString());
+		Payment payment = new Payment
+		{
+			UserId = user!.Id,
+			Date = DateTime.Now,
+			File = uploadedFileBytes
+		};
+
+		ServiceResponse response = await PaymentService.SavePayment(payment);
+		if (!response.Flag)
+		{
+			Notifications.ShowErrorNotification(response.Message);
+		} else
+		{
+			Notifications.ShowSuccessNotification("Uplata je uspješno zabilježena.");
+			await ReloadPaymentsForUser();
+		}
+	}
+
+	private async Task ReloadPaymentsForUser()
+	{
+		user!.Payments = await PaymentService.GetPaymentsForUser(user);
+		CheckPaymentInfo();
 	}
 }
