@@ -24,7 +24,7 @@
 	}
 	else
 	{
-		if (!isMember)
+		if (!user.ValidMembership)
 		{
 			<RadzenAlert AlertStyle="AlertStyle.Danger" AllowClose="false">
 				@if (!hasPayments)
@@ -43,7 +43,7 @@
 			</RadzenAlert>
 		} else
 		{
-			<RadzenAlert AlertStyle="AlertStyle.Success" AllowClose=@(isMember)>
+			<RadzenAlert AlertStyle="AlertStyle.Success" AllowClose=@(user.ValidMembership)>
 				<span>Tvoje članstvo je aktivno! Datum zadnje uplate: @lastPayment!.Date.ToString("dd.MM.yyyy.") </span>
 				@if (canPay)
 				{
@@ -58,7 +58,8 @@
 				<RadzenText><span style="font-weight: bold;">Član/ica od:</span> @user.MembershipApprovalDate.ToString("dd.MM.yyyy. u HH:mm:ss")</RadzenText>
 				<RadzenText>
 					<span style="font-weight: bold;">Status članstva: </span>
-					@if (isMember) {
+					@if (user.ValidMembership)
+					{
 						<span style="color: green;">Aktivan</span>
 					}
 					else
@@ -70,7 +71,7 @@
 				{
 					<RadzenText><span style="font-weight: bold;">Zadnja uplata članarine:</span> @lastPayment!.Date.ToString("dd.MM.yyyy.")</RadzenText>
 				}
-				@if (isMember)
+				@if (user.ValidMembership)
 				{
 					<RadzenText>
 						<span style="font-weight: bold;">Članarina vrijedi do:</span> @lastPayment!.DateUntil.ToString("dd.MM.yyyy.")
@@ -80,7 +81,7 @@
 				<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
 					@if (canPay)
 					{
-						if (isMember)
+						if (user.ValidMembership)
 						{
 							<RadzenText>Pošto je članarina uplaćena prošle godine, iako i dalje vrijedi, možete uplatiti članstvo za ovu godinu. Uplata vrijedi godinu dana:</RadzenText>
 						}
@@ -137,7 +138,6 @@
 	public bool updatingContacts = false;
 
 	public bool hasPayments = false;
-	public bool isMember = false;
 	public bool canPay = true;
 
 	public List<string> possibleContacts = new List<string>
@@ -220,21 +220,13 @@
 
 		if (payments.Count == 0)
 		{
-			isMember = false;
 			canPay = true;
 			return;
 		}
 
 		hasPayments = true;
 		lastPayment = payments.OrderByDescending(p => p.Date).First();
-		if (lastPayment.DateUntil.Date < DateTime.Now.Date)
-		{
-			isMember = false;
-			canPay = true;
-			return;
-		}
 
-		isMember = true;
 		canPay = !(lastPayment.Year == DateTime.Now.Year);
 	}
 

@@ -31,5 +31,17 @@ namespace MMS.Models
 		public Role Role { get; set; }
 		public ICollection<UserData> UserData { get; set; } = new List<UserData>();
 		public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+		[NotMapped]
+		public bool ValidMembership
+		{
+			get
+			{
+				if (Payments.Count == 0)
+				{
+					return false;
+				}
+				return !(Payments.OrderByDescending(p => p.Date).First().DateUntil < DateTime.Now.Date);
+			}
+		}
 	}
 }
