@@ -73,8 +73,8 @@
 				@if (isMember)
 				{
 					<RadzenText>
-						<span style="font-weight: bold;">Članarina vrijedi do:</span> @lastPayment!.Date.AddYears(1).ToString("dd.MM.yyyy.")
-						<span> (broj dana: @((lastPayment!.Date.AddYears(1) - DateTime.Now.Date).Days))</span>
+						<span style="font-weight: bold;">Članarina vrijedi do:</span> @lastPayment!.DateUntil.ToString("dd.MM.yyyy.")
+						<span> (broj dana: @((lastPayment!.DateUntil - DateTime.Now.Date).Days))</span>
 					</RadzenText>
 				}
 				<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
@@ -227,7 +227,7 @@
 
 		hasPayments = true;
 		lastPayment = payments.OrderByDescending(p => p.Date).First();
-		if (lastPayment.Date.AddYears(1).Date < DateTime.Now.Date)
+		if (lastPayment.DateUntil.Date < DateTime.Now.Date)
 		{
 			isMember = false;
 			canPay = true;

@@ -23,5 +23,13 @@ namespace MMS.Models
 				return Date.Year;
 			}
 		}
+		[NotMapped]
+		public DateTime DateUntil
+		{
+			get
+			{
+				return Date.AddYears(1);
+			}
+		}
 	}
 }
