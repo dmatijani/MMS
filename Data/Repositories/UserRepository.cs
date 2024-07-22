@@ -26,12 +26,12 @@ namespace MMS.Data.Repositories
 
 		public async Task<List<User>> Get()
 		{
-			return await _context.Users.Include(u => u.Role).Include(u => u.UserData).ToListAsync();
+			return await _context.Users.Include(u => u.Role).Include(u => u.UserData).Include(u => u.Payments).ToListAsync();
 		}
 
 		public async Task<User?> Get(int id)
 		{
-			return await _context.Users.Include(u => u.Role).Include(u => u.UserData).Where(x => x.Id == id).FirstOrDefaultAsync();
+			return await _context.Users.Include(u => u.Role).Include(u => u.UserData).Include(u => u.UserData).Where(x => x.Id == id).FirstOrDefaultAsync();
 		}
 
 		public async Task Update(User entity)

@@ -30,5 +30,6 @@ namespace MMS.Models
 		[Required]
 		public Role Role { get; set; }
 		public ICollection<UserData> UserData { get; set; } = new List<UserData>();
+		public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 	}
 }
