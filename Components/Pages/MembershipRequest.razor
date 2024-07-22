@@ -1,13 +1,16 @@
 ﻿@page "/membership-request"
+@using MMS.Components.Helpers
 @using MMS.Services
 @using Radzen
 @using MMS.Models.ViewModels
 @rendermode InteractiveServer
-@inject NotificationService NotificationService
+@inject Notifications Notifications
 @inject UserService UserService
 
-<PageTitle>Zahtjev za članstvom</PageTitle>
+<PageTitle>MMS - Zahtjev za članstvom</PageTitle>
 <h3>Zahtjev za članstvom</h3>
+
+<RadzenText>Na ovoj stranici možete sastaviti zahtjev za članstvom.</RadzenText>
 
 <RadzenCard Variant="Variant.Filled">
 	<RadzenTemplateForm TItem=MembershipRequestViewModel Data=@Model Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
@@ -46,6 +49,7 @@
 			<RadzenFieldset Text="Ostali kontakti">
 				<RadzenStack>
 					<RadzenText>Ostali kontakti nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
+					<RadzenText>Nije bitno da sad unesete sve kontakte jer <span style="font-weight: bold;">kontakte možete naknadno mijenjati!</span></RadzenText>
 					<RadzenRow>
 						<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" Disabled=@sending />
 						<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Danger" Icon="warning_amber" Text="Ukloni sve kontakte" Disabled=@sending />
@@ -125,37 +129,15 @@
 			whichContact = possibleContacts.Where(c => !Model.UserData.Select(ud => ud.Name).Contains(c)).First();
 		} catch (Exception e)
 		{
-			ShowErrorNotification("Već imaš sve kontakte!");
+			Notifications.ShowErrorNotification("Već imaš sve kontakte!");
 			return;
 		}
 		Model.UserData.Add(new UserDataViewModel(contactId++, whichContact));
 	}
 
-	private void ShowErrorNotification(string error)
-	{
-		NotificationService.Notify(new NotificationMessage
-		{
-			Severity = NotificationSeverity.Error,
-			Duration = 5000,
-			Summary = "Greška",
-			Detail = error
-		});
-	}
-
-	private void ShowSuccessNotification(string message)
-	{
-		NotificationService.Notify(new NotificationMessage
-			{
-				Severity = NotificationSeverity.Success,
-				Duration = 5000,
-				Summary = "Uspjeh",
-				Detail = message
-			});
-	}
-
 	private void OnInvalidSubmit()
 	{
-		ShowErrorNotification("Podaci nisu ispravno uneseni.");
+		Notifications.ShowErrorNotification("Podaci nisu ispravno uneseni.");
 	}
 
 	private async Task OnSubmit()
@@ -164,11 +146,11 @@
 		var result = await UserService.SendNewMembershipRequest(Model);
 		if (!result.Flag)
 		{
-			ShowErrorNotification(result.Message);
+			Notifications.ShowErrorNotification(result.Message);
 			sending = false;
 		} else
 		{
-			ShowSuccessNotification(result.Message);
+			Notifications.ShowSuccessNotification(result.Message);
 			successful = true;
 		}
 	}

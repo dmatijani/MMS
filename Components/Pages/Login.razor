@@ -8,32 +8,39 @@
 @inject NavigationManager NavigationManager
 @inject LoginService LoginService
 
-<div class="row">
-	<div class="col-lg-4 offset-lg-4 pt-4 pb-4 border">
-		<EditForm Model="@Model" OnValidSubmit="ValidSubmit" OnInvalidSubmit="InvalidSubmit" FormName="LoginForm">
-			<DataAnnotationsValidator />
-			<div class="mb-3 text-center flex-column">
-				<h3>Prijava</h3>
-			</div>
-			<div class="mb-3">
-				<label>Email</label>
-				<InputText @bind-Value="Model.Email" class="form-control" placeholder="Email" />
-				<ValidationMessage For="() => Model.Email" />
-			</div>
-			<div class="mb-3">
-				<label>Lozinka</label>
-				<InputText @bind-Value="Model.Password" class="form-control" placeholder="Password" />
-				<ValidationMessage For="() => Model.Password" />
-			</div>
-			<div class="mb-3 text-center">
-				<span class="text-danger">@error</span>
-			</div>
-			<div class="mb-3 d-grip gap-2">
-				<button type="submit" class="btn btn-primary">Prijavi se</button>
-			</div>
-		</EditForm>
-	</div>
-</div>
+<PageTitle>MMS - Prijava</PageTitle>
+<h3>Prijava</h3>
+
+<RadzenCard Class="rz-background-color-info-lighter">
+	<RadzenRow>
+		<div class="col-lg-4 offset-lg-4 pt-4 pb-4 border">
+			<EditForm Model="@Model" OnValidSubmit="ValidSubmit" OnInvalidSubmit="InvalidSubmit" FormName="LoginForm">
+				<DataAnnotationsValidator />
+				<div class="mb-3 text-center flex-column">
+					<h3>Prijava</h3>
+				</div>
+				<div class="mb-3">
+					<label>Email</label>
+					<InputText @bind-Value="Model.Email" class="form-control" placeholder="Email" />
+					<ValidationMessage For="() => Model.Email" />
+				</div>
+				<div class="mb-3">
+					<label>Lozinka</label>
+					<InputText @bind-Value="Model.Password" class="form-control" placeholder="Password" />
+					<ValidationMessage For="() => Model.Password" />
+				</div>
+				<div class="mb-3 text-center">
+					<span class="text-danger">@error</span>
+				</div>
+				<div class="mb-3 d-grip gap-2">
+					<button type="submit" class="btn btn-primary">Prijavi se</button>
+				</div>
+			</EditForm>
+		</div>
+	</RadzenRow>
+</RadzenCard>
+
+<RadzenText>Nemate račun? <a href="/membership-request">Pošaljite <span style="font-style: italic;">Zahtjev za članstvom</span>.</a></RadzenText>
 
 @code {
 	[CascadingParameter]

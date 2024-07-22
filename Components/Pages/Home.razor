@@ -5,25 +5,21 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>MMS</PageTitle>
+<h1>MMS</h1>
 
-<div class="row">
-	<div class="col-12">
-		<div class="card">
-			<div class="card-body">
-				<AuthorizeView>
-					<NotAuthorized>
-						<span>Pritisni <a href="/login">ovdje</a> za prijavu.</span>
-						<span>Pritisni <a href="/membership-request">ovdje</a> za registraciju.</span>
-					</NotAuthorized>
-					<Authorized>
-						<span>Hej, <b>@context.User.Identity?.Name</b>, pritisni <a href="/logout">ovdje</a> za odjavu.</span>
-						<a href="/profile">Profil</a>
-					</Authorized>
-				</AuthorizeView>
-			</div>
-		</div>
-	</div>
-</div>
+<RadzenCard Class="rz-background-color-info-lighter">
+	<AuthorizeView>
+		<NotAuthorized>
+			<RadzenText>Pritisni <a href="/login">ovdje</a> za prijavu.</RadzenText>
+			<RadzenText>Nemaš račun? Pritisni <a href="/membership-request">ovdje</a> za sastavljanje <span style="font-style: italic;">Zahtjev za članstvom</span>.</RadzenText>
+		</NotAuthorized>
+		<Authorized>
+			<RadzenText>Hej, <b>@context.User.Identity?.Name</b>.</RadzenText>
+			<RadzenText><a href="/profile">Profil</a></RadzenText>
+			<RadzenText><a href="/logout">Odjava</a></RadzenText>
+		</Authorized>
+	</AuthorizeView>
+</RadzenCard>
 
 @code {
 	[CascadingParameter]

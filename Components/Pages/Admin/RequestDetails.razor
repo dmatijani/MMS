@@ -1,4 +1,5 @@
 ﻿@page "/admin/requests/{userId:int}"
+@using MMS.Components.Helpers
 @using MMS.Models
 @using MMS.Models.ViewModels
 @using MMS.Services
@@ -10,7 +11,7 @@
 @attribute [StreamRendering]
 @inject UserService UserService
 @inject NavigationManager NavigationManager
-@inject NotificationService NotificationService
+@inject Notifications Notifications
 @inject DialogService DialogService
 
 <PageTitle>MMS - Zahtjev</PageTitle>
@@ -147,17 +148,6 @@
 		}
 	}
 
-	private void ShowErrorNotification(string error)
-	{
-		NotificationService.Notify(new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Duration = 5000,
-				Summary = "Greška",
-				Detail = error
-			});
-	}
-
 	private async Task RejectRequest()
 	{
 		sending = true;
@@ -166,7 +156,7 @@
 		rejected = response.Flag;
 		if (!response.Flag)
 		{
-			ShowErrorNotification(response.Message);
+			Notifications.ShowErrorNotification(response.Message);
 		}
 	}
 
@@ -178,7 +168,7 @@
 		approved = response.Flag;
 		if (!response.Flag)
 		{
-			ShowErrorNotification(response.Message);
+			Notifications.ShowErrorNotification(response.Message);
 		}
 	}
 }

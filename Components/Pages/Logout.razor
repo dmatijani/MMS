@@ -5,17 +5,16 @@
 @inject NavigationManager NavigationManager
 @inject LoginService LoginService
 
+<PageTitle>MMS - Odjava</PageTitle>
 <h3>Odjava</h3>
-<p>Uspješno ste odjavljeni. <a href="/login">Natrag na prijavu.</a></p>
-<div class="mb-3 text-center">
-	<span class="text-danger">@error</span>
-</div>
+
+<RadzenText>Uspješno ste odjavljeni.</RadzenText>
+<RadzenText><a href="/">Početna stranica</a></RadzenText>
+<RadzenText><a href="/login">Prijava.</a></RadzenText>
 
 @code {
 	[CascadingParameter]
 	public HttpContext? HttpContext { get; set; }
-
-	private string? error = "";
 
 	protected override async Task OnInitializedAsync()
 	{

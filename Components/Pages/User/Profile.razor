@@ -1,4 +1,5 @@
 ﻿@page "/profile"
+@using MMS.Components.Helpers
 @using MMS.Models
 @using MMS.Models.ViewModels
 @using MMS.Services
@@ -11,7 +12,7 @@
 @attribute [StreamRendering]
 @inject UserService UserService
 @inject NavigationManager NavigationManager
-@inject NotificationService NotificationService
+@inject Notifications Notifications
 
 <PageTitle>MMS - Moj profil</PageTitle>
 <h3>Moj profil</h3>
@@ -138,37 +139,17 @@
 			whichContact = possibleContacts.Where(c => !UserData.Select(ud => ud.Name).Contains(c)).First();
 		} catch (Exception e)
 		{
-			ShowErrorNotification("Već imaš sve kontakte!");
+			Notifications.ShowErrorNotification("Već imaš sve kontakte!");
 			return;
 		}
 		UserData.Add(new UserDataViewModel(contactId++, whichContact));
 	}
 
-	private void ShowErrorNotification(string error)
-	{
-		NotificationService.Notify(new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Duration = 5000,
-				Summary = "Greška",
-				Detail = error
-			});
-	}
-
-	private void ShowSuccessNotification(string message)
-	{
-		NotificationService.Notify(new NotificationMessage
-			{
-				Severity = NotificationSeverity.Success,
-				Duration = 5000,
-				Summary = "Uspjeh",
-				Detail = message
-			});
-	}
+	
 
 	private void OnInvalidSubmit()
 	{
-		ShowErrorNotification("Kontakti nisu ispravno uneseni.");
+		Notifications.ShowErrorNotification("Kontakti nisu ispravno uneseni.");
 	}
 
 	private async Task OnSubmit()
@@ -182,10 +163,10 @@
 		ServiceResponse response = await UserService.Update(user);
 		if (!response.Flag)
 		{
-			ShowErrorNotification(response.Message);
+			Notifications.ShowErrorNotification(response.Message);
 		} else
 		{
-			ShowSuccessNotification("Kontakti su uspješno ažurirani.");
+			Notifications.ShowSuccessNotification("Kontakti su uspješno ažurirani.");
 		}
 		updatingContacts = false;
 	}
