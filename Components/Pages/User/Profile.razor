@@ -127,7 +127,7 @@
 	}
 </RadzenRow>
 
-@code {
+	@code {
 	[CascadingParameter]
 	private Task<AuthenticationState> authenticationState { get; set; }
 
@@ -140,6 +140,9 @@
 
 	public bool hasPayments = false;
 	public bool canPay = true;
+
+	RadzenUpload uploadComponent;
+	public FileInfo? uploadedFile { get; set; } = null;
 
 	public List<string> possibleContacts = new List<string>
 	{
@@ -260,13 +263,69 @@
 		var result = await DialogService.OpenAsync("Potvrda o uplati", ds =>
 			@<RadzenStack>
 				<RadzenText>Prenesi potvrdu o uplati (PDF, maksimalna veličina datoteke: 1MB):</RadzenText>
+					<RadzenUpload @ref="uploadComponent" Icon="upload" ChooseText="Prenesi" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "select file" }})"
+						Multiple="false" Change=@OnUploadChange Accept="application/pdf" />
 				<RadzenButton Text="Prenesi" Click=@CreateNewPayment />
 			</RadzenStack>
-		);
+	);
+	}
+
+	private async Task<byte[]> ConvertFileToByteArray(FileInfo file)
+	{
+		using (var fileStream = file.OpenReadStream(1000*1024))
+		{
+			using (var memoryStream = new MemoryStream())
+			{
+				await fileStream.CopyToAsync(memoryStream);
+				return memoryStream.ToArray();
+			}
+		}
+	}
+
+	public void OnUploadChange(UploadChangeEventArgs args)
+	{
+		if (args.Files.Count() == 0)
+		{
+			uploadedFile = null;
+			return;
+		}
+
+		var file = args.Files.First();
+		if (file.Size > 1024*1000)
+		{
+			Notifications.ShowErrorNotification("Datoteka je prevelika! Maksimalna veličina datoteke je 1MB.");
+			uploadComponent.ClearFiles();
+			return;
+		}
+
+		if (!file.Name.EndsWith(".pdf"))
+		{
+			Notifications.ShowErrorNotification("Datoteka smije biti samo u PDF formatu!");
+			uploadComponent.ClearFiles();
+			return;
+		}
+
+		uploadedFile = file;
 	}
 
 	private async Task CreateNewPayment()
 	{
-		
+		if (uploadedFile == null)
+		{
+			Notifications.ShowErrorNotification("Nije prenesena potvrda o uplati!");
+			return;
+		}
+
+		byte[] uploadedFileBytes;
+		try
+		{
+			uploadedFileBytes = await ConvertFileToByteArray(uploadedFile);
+		} catch (Exception ex)
+		{
+			Notifications.ShowErrorNotification("Greška kod prijenosa datoteke.");
+			return;
+		}
+
+		Notifications.ShowSuccessNotification(uploadedFileBytes.Length.ToString());
 	}
 }
