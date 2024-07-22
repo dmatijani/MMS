@@ -15,8 +15,8 @@ namespace MMS.Models
 		public int UserId { get; set; }
 		[Required]
 		public User User { get; set; }
-		//[Required]
-		//public byte[] File { get; set; }
+		[Required]
+		public byte[] File { get; set; }
 		[NotMapped]
 		public int Year
 		{
