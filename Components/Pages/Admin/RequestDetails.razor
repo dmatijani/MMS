@@ -26,13 +26,20 @@
 			<RadzenStack Style="overflow-x: auto;">
 				<RadzenText><span style="font-weight: bold;">Zahtjev zatražio/la:</span> @(user.Name + " " + user.Surname)</RadzenText>
 				<RadzenText><span style="font-weight: bold;">Primarna email adresa:</span> <code style="color: black">@user.Email</code></RadzenText>
+				<RadzenText><span style="font-weight: bold;">Datum i vrijeme predaje zahtjeva:</span> @user.MembershipRequestDate.ToString("dd.MM.yyyy. u HH:mm:ss")</RadzenText>
 				<RadzenText><span style="font-weight: bold;">Ostali podaci:</span></RadzenText>
-				<ul>
-					@foreach (var contact in user.UserData)
-					{
-						<li>@contact.Name: @contact.Value</li>
-					}
-				</ul>
+				@if (user.UserData.Count > 0)
+				{
+					<ul>
+						@foreach (var contact in user.UserData)
+						{
+							<li>@contact.Name: @contact.Value</li>
+						}
+					</ul>
+				} else
+				{
+					<RadzenText Style="font-style: italic;" class="fw-lighter">Ostali podaci nisu navedeni.</RadzenText>
+				}
 				<RadzenText><span style="font-weight: bold;">Razlog učlanjenja:</span></RadzenText>
 				<RadzenCard Variant="Variant.Flat">
 					@if (user.MembershipReason != "")

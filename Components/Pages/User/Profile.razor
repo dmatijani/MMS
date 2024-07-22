@@ -27,6 +27,7 @@
 			<RadzenStack Style="overflow-x: auto;">
 				<RadzenText TextStyle="TextStyle.H6">@(user.Name + " " + user.Surname)</RadzenText>
 				<RadzenText><span style="font-weight: bold;">Primarna email adresa:</span> <code style="color: black">@user.Email</code></RadzenText>
+				<RadzenText><span style="font-weight: bold;">Član/ica od:</span> @user.MembershipApprovalDate.ToString("dd.MM.yyyy. u HH:mm:ss")</RadzenText>
 			</RadzenStack>
 		</RadzenCard>
 		<RadzenFieldset Text="Ostali kontakti" Style="width: 100%;">
@@ -52,7 +53,7 @@
 					}
 				</RadzenStack>
 			</RadzenStack>
-			<RadzenButton ButtonStyle="ButtonStyle.Success" Text="Ažuriraj kontakte" Click=@SaveContacts Disabled=@updatingContacts />
+			<RadzenButton ButtonStyle="ButtonStyle.Success" Text="Ažuriraj kontakte" class="align-self-md-center" Click=@SaveContacts Disabled=@updatingContacts />
 		</RadzenFieldset>
 	}
 </RadzenRow>

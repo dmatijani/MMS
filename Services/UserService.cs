@@ -28,7 +28,7 @@ namespace MMS.Services
 
 		public async Task<List<User>> GetNonApprovedUsers()
 		{
-			return (await _repo.Get()).Where(u => !u.Approved).ToList();
+			return (await _repo.Get()).Where(u => !u.Approved).OrderByDescending(u => u.MembershipRequestDate).ToList();
 		}
 
 		public async Task<User?> GetUserById(int userId, bool approved = true)
@@ -62,6 +62,7 @@ namespace MMS.Services
 
 			user.Approved = true;
 			user.Password = GeneratePassword();
+			user.MembershipApprovalDate = DateTime.Now;
 			await _repo.Update(user);
 			return new ServiceResponse(true, "Uspjeh");
 		}
@@ -146,6 +147,7 @@ namespace MMS.Services
 				Approved = false,
 				MembershipReason = model.MembershipReason.Trim(),
 				RoleId = roleId,
+				MembershipRequestDate = DateTime.Now,
 				UserData = model.UserData.Select(d => new UserData
 				{
 					Name = d.Name.Trim(),

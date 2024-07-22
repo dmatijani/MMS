@@ -23,6 +23,8 @@ namespace MMS.Models
 		public bool Approved { get; set; }
 		[Column(TypeName = "text")]
 		public string MembershipReason { get; set; }
+		public DateTime MembershipRequestDate { get; set; }
+		public DateTime MembershipApprovalDate { get; set; }
 		[Required]
 		public int RoleId { get; set; }
 		[Required]

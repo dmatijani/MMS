@@ -35,15 +35,23 @@
 							<RadzenColumn Class="rz-background-color-info-lighter" Style="padding: 10px" SizeLG="3">
 								<RadzenText TextStyle="TextStyle.H6">@(user.Name + " " + user.Surname)</RadzenText>
 								<RadzenText><code style="color: black;">@user.Email</code></RadzenText>
+								<RadzenText>Zahtjev predan @user.MembershipRequestDate.ToString("dd.MM.yyyy. u HH:mm:ss")</RadzenText>
 							</RadzenColumn>
 							<RadzenColumn Style="padding: 10px; overflow-x: auto;" SizeLG="3">
 								<RadzenText TextStyle="TextStyle.H6">Ostali podaci:</RadzenText>
-								<ul>
-									@foreach (var contact in user.UserData)
-									{
-										<li>@contact.Name: @contact.Value</li>
-									}
-								</ul>
+								@if (user.UserData.Count > 0)
+								{
+									<ul>
+										@foreach (var contact in user.UserData)
+										{
+											<li>@contact.Name: @contact.Value</li>
+										}
+									</ul>
+								}
+								else
+								{
+									<RadzenText Style="font-style: italic;" class="fw-lighter">Ostali podaci nisu navedeni.</RadzenText>
+								}
 							</RadzenColumn>
 							<RadzenColumn Style="padding: 10px" SizeLG="4">
 								<RadzenText TextStyle="TextStyle.H6">Razlog zahtjeva:</RadzenText>
