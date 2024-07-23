@@ -1,5 +1,4 @@
-﻿using Microsoft.Identity.Client;
-using MMS.Data.Repositories;
+﻿using MMS.Data.Repositories;
 using MMS.Models;
 using MMS.Models.ViewModels;
 using MMS.Services.Responses;
@@ -12,18 +11,24 @@ namespace MMS.Services
 		private readonly IUserRepository _repo;
 		private readonly IUserDataRepository _dataRepo;
 		private readonly IRoleRepository _roleRepo;
+		private readonly PasswordHasher _hasher;
 
-		public UserService(IUserRepository repository, IUserDataRepository dataRepository, IRoleRepository roleRepository)
+		public UserService(IUserRepository repository, IUserDataRepository dataRepository, IRoleRepository roleRepository, PasswordHasher hasher)
 		{
 			_repo = repository;
 			_dataRepo = dataRepository;
 			_roleRepo = roleRepository;
+			_hasher = hasher;
 		}
 
 		public async Task<User?> GetUserByLoginInformation(LoginViewModel model)
 		{
+			if (model.Password == null)
+			{
+				return null;
+			}
 			var users = await _repo.Get();
-			return users.FirstOrDefault(u => u.Email == model.Email && u.Password == model.Password && u.Approved);
+			return users.FirstOrDefault(u => u.Email == model.Email && _hasher.VerifyPassword(model.Password, u.Password) && u.Approved);
 		}
 
 		public async Task<List<User>> GetNonApprovedUsers()
@@ -57,15 +62,16 @@ namespace MMS.Services
 		{
 			if (user.Approved == true)
 			{
-				return new ApprovedRequestServiceResponse(false, null, "Problem s spajanjem na bazu.");
+				return new ApprovedRequestServiceResponse(false, null, "", "Problem s spajanjem na bazu.");
 			}
 
 			user.Approved = true;
-			user.Password = GeneratePassword();
+			string password = GeneratePassword();
+			user.Password = _hasher.HashPassword(password);
 			user.MembershipApprovalDate = DateTime.Now;
 			await _repo.Update(user);
 			User? updatedUser = (await _repo.Get()).Where(u => u.Email == user.Email).FirstOrDefault();
-			return new ApprovedRequestServiceResponse(true, updatedUser, "Uspjeh");
+			return new ApprovedRequestServiceResponse(true, updatedUser, password, "Uspjeh");
 		}
 
 		public async Task<ServiceResponse> SendNewMembershipRequest(MembershipRequestViewModel model)
@@ -178,9 +184,9 @@ namespace MMS.Services
 
 		private string GeneratePassword()
 		{
-			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!!!!!";
+			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 			Random random = new Random();
-			int stringLength = random.Next(12, 16);
+			int stringLength = 16;
 			char[] randomArray = new char[stringLength];
 
 			for (int i = 0; i < stringLength; i ++)

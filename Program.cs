@@ -30,6 +30,7 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<PasswordHasher>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<PaymentService>();

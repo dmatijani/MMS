@@ -2,5 +2,5 @@
 
 namespace MMS.Services.Responses
 {
-	public record ApprovedRequestServiceResponse(bool Flag, User? user = null, string Message = null!);
+	public record ApprovedRequestServiceResponse(bool Flag, User? user, string password, string Message = null!);
 }

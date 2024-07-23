@@ -36,14 +36,14 @@ namespace MMS.Services
 			}
 		}
 
-		public byte[] GetMembershipDecision(User user)
+		public byte[] GetMembershipDecision(User user, string password)
 		{
 			using (MemoryStream memoryStream = new MemoryStream())
 			{
 				PdfWriter writer = new PdfWriter(memoryStream);
 				PdfDocument pdf = new PdfDocument(writer);
 
-				GenerateMembershipDecision(pdf, user);
+				GenerateMembershipDecision(pdf, user, password);
 
 				byte[] bytes = memoryStream.ToArray();
 				return bytes;
@@ -134,7 +134,7 @@ namespace MMS.Services
 			document.Close();
 		}
 
-		private void GenerateMembershipDecision(PdfDocument pdf, User user)
+		private void GenerateMembershipDecision(PdfDocument pdf, User user, string password)
 		{
 			Document document = new Document(pdf);
 
@@ -181,7 +181,7 @@ namespace MMS.Services
 
 			document.Add(new Paragraph("Za prijavu u sustav, koristite ove pristupne podatke.").SetFont(font));
 			document.Add(new Paragraph($"Email: {user.Email}").SetFont(font));
-			document.Add(new Paragraph($"Lozinka: {user.Password}").SetFont(font));
+			document.Add(new Paragraph($"Lozinka: {password}").SetFont(font));
 
 			document.Add(new Paragraph("\n").SetFont(font));
 

@@ -182,7 +182,7 @@
 			return;
 		}
 
-		bool successful = await SendApprovedRequestMail(response.user);
+		bool successful = await SendApprovedRequestMail(response.user, response.password);
 		sending = false;
 		approved = successful;
 		if (!successful)
@@ -191,14 +191,14 @@
 		}
 	}
 
-	private async Task<bool> SendApprovedRequestMail(User user)
+	private async Task<bool> SendApprovedRequestMail(User user, string password)
 	{
 		string message = "<h3>Članstvo je odobreno</h3>";
 		message += "Poštovani, Vaše članstvo je odobreno.";
 		message += " U privitku se nalazi <span style='font-style: italic;'>Rješenje o članstvu</span> koje sadrži Vaše pristupne podatke.";
 
 		Attachment? attachment = null;
-		byte[] documentBytes = PdfService.GetMembershipDecision(user!);
+		byte[] documentBytes = PdfService.GetMembershipDecision(user!, password);
 		using (MemoryStream ms = new MemoryStream(documentBytes))
 		{
 			attachment = new Attachment(ms, "Rješenje_o_članstvu.pdf", "application/pdf");
