@@ -5,6 +5,7 @@ using MMS.Components.Helpers;
 using MMS.Data;
 using MMS.Data.Repositories;
 using MMS.Services;
+using MMS.Services.Mail;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,8 @@ builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<Notifications>();
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+builder.Services.AddScoped<MailService>();
 
 var app = builder.Build();
 
