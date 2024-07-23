@@ -2,7 +2,9 @@
 @using MMS.Data.Repositories
 @using MMS.Models
 @using System.Security.Claims
+@using MMS.Services
 @inject NavigationManager NavigationManager
+@inject UserService UserService
 
 <PageTitle>MMS</PageTitle>
 <h1>MMS</h1>
@@ -35,5 +37,7 @@
 				NavigationManager.NavigateTo("/admin");
 			}
 		}
+
+		await UserService.AddAdminUser();
 	}
 }

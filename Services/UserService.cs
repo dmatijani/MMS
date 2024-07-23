@@ -128,6 +128,27 @@ namespace MMS.Services
 			return new ServiceResponse(true, "Korisnik ažuriran!");
 		}
 
+		public async Task AddAdminUser()
+		{
+			var existingUsers = await _repo.Get();
+			if (!existingUsers.Where(u => u.Role.Name == "Admin").Any())
+			{
+				int roleId = await GetRoleOrAddNew("Admin");
+				User admin = new User
+				{
+					Email = "admin@admin.mms",
+					Password = _hasher.HashPassword("admin"),
+					RoleId = roleId,
+					Approved = true,
+					MembershipReason = "",
+					Name = "Admin",
+					Surname = "MMS"
+				};
+
+				await _repo.Create(admin);
+			}
+		}
+
 		private bool CheckIfDataIsValid(MembershipRequestViewModel model)
 		{
 			if (model.Name == null || model.Name.Trim() == "" || model.Name.Trim().Length > 50) return false;
@@ -179,7 +200,7 @@ namespace MMS.Services
 			};
 			await _roleRepo.Create(newRole);
 			var newRoleFromDb = (await _roleRepo.Get()).FirstOrDefault(r => r.Name == roleName);
-			return newRoleFromDb.Id;
+			return newRoleFromDb!.Id;
 		}
 
 		private string GeneratePassword()
