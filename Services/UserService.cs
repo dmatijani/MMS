@@ -36,6 +36,11 @@ namespace MMS.Services
 			return (await _repo.Get()).Where(u => !u.Approved).OrderByDescending(u => u.MembershipRequestDate).ToList();
 		}
 
+		public async Task<List<User>> GetExistingUsers()
+		{
+			return (await _repo.Get()).Where(u => u.Approved && u.Role.Name != "Admin").OrderBy(u => u.MembershipApprovalDate).ToList();
+		}
+
 		public async Task<User?> GetUserById(int userId, bool approved = true)
 		{
 			User? user = await _repo.Get(userId);

@@ -1,0 +1,95 @@
+﻿@page "/admin/users"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
+@attribute [StreamRendering]
+@using MMS.Models
+@using MMS.Services
+@using Radzen
+@using Microsoft.AspNetCore.Authorization
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+
+<PageTitle>MMS - Postojeći korisnici</PageTitle>
+<h3>Postojeći korisnici</h3>
+
+<RadzenText>Na ovoj stranici moguće je vidjeti sve korisnike trenutno u sustavu.</RadzenText>
+
+<RadzenRow JustifyContent="JustifyContent.Center">
+	@if (loading)
+	{
+		<RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Large" />
+	}
+	else
+	{
+		if (ExistingUsers.Count == 0)
+		{
+			<RadzenStack AlignItems="AlignItems.Center">
+				<RadzenText>Nema korisnika u sustavu!</RadzenText>
+				<RadzenText><a href="/admin/requests">Pregled zahtjeva za članstvom.</a></RadzenText>
+				<RadzenText><a href="/admin">Natrag na administratorsku početnu stranicu.</a></RadzenText>
+			</RadzenStack>
+		} else
+		{
+			<RadzenDataList AllowVirtualization="false" WrapItems="true" AllowPaging="true" Data=@ExistingUsers TItem="User" PageSize="5" ShowPagingSummary="true" Style="width: 100%;">
+				<Template Context="user">
+					<RadzenCard class="rz-p-0" Style="width: 100%; overflow: hidden;">
+						<RadzenRow JustifyContent="JustifyContent.SpaceBetween">
+							<RadzenColumn Class="rz-background-color-info-lighter" Style="padding: 10px" SizeLG="4">
+								<RadzenText TextStyle="TextStyle.H6">@(user.Name + " " + user.Surname)</RadzenText>
+								<RadzenText><code style="color: black;">@user.Email</code></RadzenText>
+								<RadzenText>Zahtjev predan @user.MembershipRequestDate.ToString("dd.MM.yyyy. u HH:mm:ss")</RadzenText>
+								<RadzenText>Zahtjev odobren @user.MembershipApprovalDate.ToString("dd.MM.yyyy. u HH:mm:ss")</RadzenText>
+								<RadzenText>Status članstva: <span style=@(user.ValidMembership? "color: green;" : "color: red;")>@(user.ValidMembership ? "Aktivan" : "Neaktivan")</span></RadzenText>
+							</RadzenColumn>
+							<RadzenColumn Style="padding: 10px; overflow-x: auto;" SizeLG="5">
+								<RadzenText TextStyle="TextStyle.H6">Ostali podaci:</RadzenText>
+								@if (user.UserData.Count > 0)
+								{
+									<ul>
+										@foreach (var contact in user.UserData)
+										{
+											<li>@contact.Name: @contact.Value</li>
+										}
+									</ul>
+								}
+								else
+								{
+									<RadzenText Style="font-style: italic;" class="fw-lighter">Ostali podaci nisu navedeni.</RadzenText>
+								}
+							</RadzenColumn>
+							<RadzenColumn Style="padding: 10px" SizeLG="3" Class="rz-background-color-info-lighter rz-text-align-center">
+								<RadzenStack AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Style="height: 100%;">
+									<RadzenButton Click=@(() => ViewPaymentsButtonClick(user))>
+										Pregledaj plaćanja</RadzenButton>
+									<RadzenButton Click=@(() => RemoveUserButtonClick(user)) ButtonStyle="ButtonStyle.Danger">Ukloni člana</RadzenButton>
+								</RadzenStack>
+							</RadzenColumn>
+						</RadzenRow>
+					</RadzenCard>
+				</Template>
+			</RadzenDataList>
+		}
+	}
+</RadzenRow>
+
+@code {
+	public List<User> ExistingUsers { get; set; } = new List<User>();
+	bool loading = true;
+
+	protected override async Task OnInitializedAsync()
+	{
+		ExistingUsers = await UserService.GetExistingUsers();
+		loading = false;
+	}
+
+	private void ViewPaymentsButtonClick(User user)
+	{
+		// TODO: navigate to payments page for user
+	}
+
+	private void RemoveUserButtonClick(User user)
+	{
+		// TODO: show user removal dialog
+	}
+}

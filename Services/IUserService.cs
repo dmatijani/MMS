@@ -9,6 +9,7 @@ namespace MMS.Services
 		public Task<User?> GetUserByLoginInformation(LoginViewModel model);
 
 		public Task<List<User>> GetNonApprovedUsers();
+		public Task<List<User>> GetExistingUsers();
 
 		public Task<User?> GetUserById(int userId, bool approved = true);
 

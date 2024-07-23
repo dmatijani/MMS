@@ -15,8 +15,8 @@
 		<RadzenCard>
 			<span>Dobrodošao, <b>@context.User.Identity?.Name</b>, pritisni <a href="/logout">ovdje</a> za odjavu.</span>
 		</RadzenCard>
-		<RadzenButton Text="Trenutačni zahtjevi" Style="max-width: 300px" Click="@CurrentRequestsButton" />
-		<RadzenButton Text="Postojeći korisnici (WIP)" Style="max-width: 300px" />
+		<RadzenButton Text="Trenutačni zahtjevi" Style="max-width: 300px" Click=@CurrentRequestsButton />
+		<RadzenButton Text="Postojeći korisnici" Style="max-width: 300px" Click=@UsersButton />
 		<RadzenButton Text="Uplate (WIP)" Style="max-width: 300px" />
 	</RadzenStack>
 </AuthorizeView>
@@ -25,5 +25,10 @@
 	private void CurrentRequestsButton()
 	{
 		NavigationManager.NavigateTo("/admin/requests");
+	}
+
+	private void UsersButton()
+	{
+		NavigationManager.NavigateTo("/admin/users");
 	}
 }
