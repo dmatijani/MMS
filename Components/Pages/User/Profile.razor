@@ -1,5 +1,6 @@
 ﻿@page "/profile"
 @using MMS.Components.Helpers
+@using MMS.Components.Reusable
 @using MMS.Models
 @using MMS.Models.ViewModels
 @using MMS.Services
@@ -108,30 +109,10 @@
 		</RadzenCard>
 		<RadzenTemplateForm TItem="List<UserDataViewModel>" Data=@UserData Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit Style="width: 100%;">
 			<RadzenStack>
-				<RadzenFieldset Text="Ostali kontakti" Style="width: 100%;">
-					<RadzenStack>
-						<RadzenText>Ovo su vaši ostali kontakti. Oni nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
-						<RadzenRow>
-							<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" Disabled=@updatingContacts />
-							<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Danger" Icon="warning_amber" Text="Ukloni sve kontakte" Disabled=@updatingContacts />
-						</RadzenRow>
-						<RadzenStack>
-							@foreach (var contact in UserData)
-							{
-								<RadzenCard Variant="Variant.Filled">
-									<RadzenRow AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
-										<RadzenRow AlignItems="AlignItems.Center">
-											<RadzenDropDown @bind-Value=contact.Name Data=@possibleContacts />
-											<RadzenTextBox @bind-Value=contact.Value AllowClear="false" MaxLength="80" Placeholder=@contact.Name Name=@contact.Id.ToString() />
-											<RadzenRequiredValidator Component=@contact.Id.ToString() Text="Ne može ostati prazno!" />
-										</RadzenRow>
-										<RadzenButton ButtonStyle="ButtonStyle.Danger" Text="🗙" JustifyContent="JustifyContent.End" Click=@(() => RemoveOneContact(contact.Id)) Disabled=@updatingContacts />
-									</RadzenRow>
-								</RadzenCard>
-							}
-						</RadzenStack>
-					</RadzenStack>
-				</RadzenFieldset>
+				<ContactEditor UserData=@UserData Disabled=@updatingContacts>
+					<RadzenText>Ovo su vaši ostali kontakti. Oni nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
+				</ContactEditor>
+
 				<RadzenButton ButtonStyle="ButtonStyle.Success" Text="Ažuriraj kontakte" class="align-self-md-center" ButtonType="ButtonType.Submit" Disabled=@updatingContacts />
 			</RadzenStack>
 		</RadzenTemplateForm>
@@ -154,16 +135,6 @@
 
 	RadzenUpload uploadComponent;
 	public FileInfo? uploadedFile { get; set; } = null;
-
-	public List<string> possibleContacts = new List<string>
-	{
-		"Sekundarni email",
-		"Mobilni telefon",
-		"Fiksni telefon",
-		"Adresa",
-		"Web mjesto",
-		"Društvena mreža"
-	};
 
 	public int contactId = 0;
 
@@ -202,31 +173,6 @@
 		).ToList();
 
 		loading = false;
-	}
-
-	private void RemoveOneContact(int id)
-	{
-		UserData.RemoveAll(ud => ud.Id == id);
-	}
-
-	private void RemoveAllContacts()
-	{
-		contactId = 0;
-		UserData = new List<UserDataViewModel>();
-	}
-
-	private void AddContact()
-	{
-		string whichContact = "";
-		try
-		{
-			whichContact = possibleContacts.Where(c => !UserData.Select(ud => ud.Name).Contains(c)).First();
-		} catch (Exception e)
-		{
-			Notifications.ShowErrorNotification("Već imaš sve kontakte!");
-			return;
-		}
-		UserData.Add(new UserDataViewModel(contactId++, whichContact));
 	}
 
 	private void CheckPaymentInfo()

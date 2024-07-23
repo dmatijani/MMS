@@ -1,5 +1,6 @@
 ﻿@page "/membership-request"
 @using MMS.Components.Helpers
+@using MMS.Components.Reusable
 @using MMS.Services
 @using Radzen
 @using MMS.Models.ViewModels
@@ -46,31 +47,10 @@
 				</RadzenStack>
 			</RadzenFieldset>
 
-			<RadzenFieldset Text="Ostali kontakti">
-				<RadzenStack>
-					<RadzenText>Ostali kontakti nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
-					<RadzenText>Nije bitno da sad unesete sve kontakte jer <span style="font-weight: bold;">kontakte možete naknadno mijenjati!</span></RadzenText>
-					<RadzenRow>
-						<RadzenButton Click=@AddContact ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Dodaj novi kontakt" Disabled=@sending />
-						<RadzenButton Click=@RemoveAllContacts ButtonStyle="ButtonStyle.Danger" Icon="warning_amber" Text="Ukloni sve kontakte" Disabled=@sending />
-					</RadzenRow>
-					<RadzenStack>
-						@foreach (var contact in Model.UserData)
-						{
-							<RadzenCard Variant="Variant.Filled">
-								<RadzenRow AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
-									<RadzenRow AlignItems="AlignItems.Center">
-										<RadzenDropDown @bind-Value=contact.Name Data=@possibleContacts Disabled=@sending />
-										<RadzenTextBox @bind-Value=contact.Value AllowClear="false" MaxLength="80" Placeholder=@contact.Name Name=@contact.Id.ToString() Disabled=@sending />
-										<RadzenRequiredValidator Component=@contact.Id.ToString() Text="Ne može ostati prazno!" />
-									</RadzenRow>
-									<RadzenButton ButtonStyle="ButtonStyle.Danger" Text="🗙" JustifyContent="JustifyContent.End" Click=@(() => RemoveOneContact(contact.Id)) Disabled=@sending />
-								</RadzenRow>
-							</RadzenCard>
-						}
-					</RadzenStack>
-				</RadzenStack>
-			</RadzenFieldset>
+			<ContactEditor UserData=@Model.UserData Disabled=@sending>
+				<RadzenText>Ostali kontakti nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
+				<RadzenText>Nije bitno da sad unesete sve kontakte jer <span style="font-weight: bold;">kontakte možete naknadno mijenjati!</span></RadzenText>
+			</ContactEditor>
 
 			<RadzenButton ButtonType="ButtonType.Submit" Text="Pošalji" class="align-self-md-center" Disabled=@sending />
 			@if (sending && !successful)
@@ -96,44 +76,8 @@
 		MembershipReason = ""
 	};
 
-	public List<string> possibleContacts = new List<string>
-	{
-		"Sekundarni email",
-		"Mobilni telefon",
-		"Fiksni telefon",
-		"Adresa",
-		"Web mjesto",
-		"Društvena mreža"
-	};
-
-	public int contactId = 0;
 	public bool sending = false;
 	public bool successful = false;
-
-	private void RemoveOneContact(int id)
-	{
-		Model.UserData.RemoveAll(ud => ud.Id == id);
-	}
-
-	private void RemoveAllContacts()
-	{
-		contactId = 0;
-		Model.UserData = new List<UserDataViewModel>();
-	}
-
-	private void AddContact()
-	{
-		string whichContact = "";
-		try
-		{
-			whichContact = possibleContacts.Where(c => !Model.UserData.Select(ud => ud.Name).Contains(c)).First();
-		} catch (Exception e)
-		{
-			Notifications.ShowErrorNotification("Već imaš sve kontakte!");
-			return;
-		}
-		Model.UserData.Add(new UserDataViewModel(contactId++, whichContact));
-	}
 
 	private void OnInvalidSubmit()
 	{
