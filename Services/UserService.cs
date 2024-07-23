@@ -53,18 +53,19 @@ namespace MMS.Services
 			return new ServiceResponse(true, "Uspjeh");
 		}
 
-		public async Task<ServiceResponse> ApproveRequest(User user)
+		public async Task<ApprovedRequestServiceResponse> ApproveRequest(User user)
 		{
 			if (user.Approved == true)
 			{
-				return new ServiceResponse(false, "Problem s spajanjem na bazu.");
+				return new ApprovedRequestServiceResponse(false, null, "Problem s spajanjem na bazu.");
 			}
 
 			user.Approved = true;
 			user.Password = GeneratePassword();
 			user.MembershipApprovalDate = DateTime.Now;
 			await _repo.Update(user);
-			return new ServiceResponse(true, "Uspjeh");
+			User? updatedUser = (await _repo.Get()).Where(u => u.Email == user.Email).FirstOrDefault();
+			return new ApprovedRequestServiceResponse(true, updatedUser, "Uspjeh");
 		}
 
 		public async Task<ServiceResponse> SendNewMembershipRequest(MembershipRequestViewModel model)

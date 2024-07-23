@@ -6,6 +6,7 @@
 @using MMS.Services.Responses
 @using Microsoft.AspNetCore.Authorization
 @using Radzen
+@using System.Net.Mail
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
 @attribute [StreamRendering]
@@ -13,6 +14,7 @@
 @inject NavigationManager NavigationManager
 @inject Notifications Notifications
 @inject DialogService DialogService
+@inject MailService MailService
 
 <PageTitle>MMS - Zahtjev</PageTitle>
 <h3>Pregled zahtjeva</h3>
@@ -163,12 +165,38 @@
 	private async Task ApproveRequest()
 	{
 		sending = true;
-		ServiceResponse response = await UserService.ApproveRequest(user);
-		sending = false;
+		ApprovedRequestServiceResponse response = await UserService.ApproveRequest(user);
 		approved = response.Flag;
 		if (!response.Flag)
 		{
 			Notifications.ShowErrorNotification(response.Message);
+			sending = false;
+			return;
+		}
+
+		if (response.user == null)
+		{
+			Notifications.ShowErrorNotification("Greška kod dohvata novog korisnika.");
+			sending = false;
+			return;
+		}
+
+		await SendApprovedRequestMail(response.user);
+		sending = false;
+	}
+
+	private async Task SendApprovedRequestMail(User user)
+	{
+		string message = "<h3>Članstvo je odobreno</h3>";
+		message += "Poštovani, Vaše članstvo je odobreno.";
+		message += " U privitku se nalazi <span style='font-style: italic;'>Rješenje o članstvu</span> koje sadrži Vaše pristupne podatke.";
+		MailMessage mail = MailService.MakeMailMessage(user.Email, "Vaše je članstvo odobreno - MMS", message, new List<Attachment>(), true);
+		try
+		{
+			await MailService.SendMail(mail);
+		} catch (Exception ex)
+		{
+			Notifications.ShowErrorNotification("Greška kod slanja maila.");
 		}
 	}
 }

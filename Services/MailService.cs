@@ -7,23 +7,29 @@ namespace MMS.Services
 	public class MailService
 	{
 		private readonly SmtpSettings _smtpSettings;
+		private string _from { get; set; }
 
 		public MailService(IOptions<SmtpSettings> smtpSettings)
 		{
 			_smtpSettings = smtpSettings.Value;
+			_from = _smtpSettings.Username;
 		}
 
-		public MailMessage MakeMailMessage(string to, string subject, string body, bool isHtml = false)
+		public MailMessage MakeMailMessage(string to, string subject, string body, List<Attachment> attachments, bool isHtml = false)
 		{
-			MailMessage mail = new MailMessage(_smtpSettings.Username, to);
+			MailMessage mail = new MailMessage(_from, to);
 			mail.Subject = subject;
 			mail.Body = body;
 			mail.IsBodyHtml = isHtml;
+			foreach (var attachment in attachments)
+			{
+				mail.Attachments.Add(attachment);
+			}
 
 			return mail;
 		}
 
-		public bool SendMail(MailMessage mail)
+		public async Task<bool> SendMail(MailMessage mail)
 		{
 			try
 			{
@@ -31,7 +37,7 @@ namespace MMS.Services
 				{
 					smtp.Credentials = new System.Net.NetworkCredential(_smtpSettings.Username, _smtpSettings.Password);
 					smtp.EnableSsl = _smtpSettings.EnableSsl;
-					smtp.Send(mail);
+					await smtp.SendMailAsync(mail);
 				}
 
 				return true;
