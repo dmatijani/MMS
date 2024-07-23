@@ -16,6 +16,8 @@
 <PageTitle>MMS - Postojeći korisnici</PageTitle>
 <h3>Postojeći korisnici</h3>
 
+<RadzenText><a href="/admin">Natrag na administratorovu početnu stranicu.</a></RadzenText>
+
 <RadzenText>Na ovoj stranici moguće je vidjeti sve korisnike trenutno u sustavu.</RadzenText>
 
 <RadzenRow JustifyContent="JustifyContent.Center">
@@ -93,7 +95,7 @@
 
 	private void ViewPaymentsButtonClick(User user)
 	{
-		// TODO: navigate to payments page for user
+		NavigationManager.NavigateTo("/admin/payments/" + user.Id);
 	}
 
 	private async void RemoveUserButtonClick(User user)

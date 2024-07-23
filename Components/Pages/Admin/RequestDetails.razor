@@ -20,6 +20,8 @@
 <PageTitle>MMS - Zahtjev</PageTitle>
 <h3>Pregled zahtjeva</h3>
 
+<RadzenText><a href="/admin/requests">Natrag na pregled zahtjeva.</a></RadzenText>
+
 <RadzenRow JustifyContent="JustifyContent.Center">
 	@if (user == null || loading)
 	{
@@ -85,7 +87,7 @@
 	}
 </RadzenRow>
 
-	@code {
+@code {
 	[Parameter]
 	public int UserId { get; set; } = 0;
 

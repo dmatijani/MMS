@@ -1,0 +1,76 @@
+﻿@page "/admin/payments/{userId:int}"
+@using MMS.Components.Reusable
+@using MMS.Services
+@using Radzen;
+@using MMS.Models;
+@using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
+@attribute [StreamRendering]
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+<PageTitle>MMS - Pregled uplata</PageTitle>
+<h3>Pregled uplata</h3>
+
+<RadzenText><a href="/admin/users">Natrag na prikaz korisnika.</a></RadzenText>
+
+@if (user != null)
+{
+	<RadzenText>Uplate za člana @user.Name @user.Surname:</RadzenText>
+}
+
+<RadzenRow JustifyContent="JustifyContent.Center">
+	@if (user == null || loading)
+	{
+		<RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Large" />
+	} else
+	{
+		<RadzenCard Variant="Variant.Outlined" Style="width: 100%">
+			@foreach (var payment in payments)
+			{
+				<PaymentView Payment="payment" User="user" />
+			}
+
+			@if (!payments.Any())
+			{
+				<RadzenText>Ovaj korisnik još nema uplata.</RadzenText>
+			}
+		</RadzenCard>
+		
+	}
+</RadzenRow>
+
+@code {
+	[Parameter]
+	public int UserId { get; set; } = 0;
+
+	public User? user { get; set; } = null;
+	public List<Payment> payments { get; set; } = new List<Payment>();
+
+	public bool loading = true;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadUserAndPayments();
+		if (user == null)
+		{
+			NavigationManager.NavigateTo("/admin/users");
+			return;
+		}
+	}
+
+	private async Task LoadUserAndPayments()
+	{
+		loading = true;
+		StateHasChanged();
+		user = await UserService.GetUserById(UserId);
+		if (user == null)
+		{
+			return;
+		}
+		payments = user.Payments.OrderByDescending(p => p.Date).ToList();
+		loading = false;
+		StateHasChanged();
+	}
+}

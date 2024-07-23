@@ -1,0 +1,25 @@
+﻿@using MMS.Models
+@using MMS.Services
+@inject IPdfService PdfService
+
+<RadzenCard class="rz-background-color-info-lighter" Style="width: 100%;">
+	<RadzenRow JustifyContent="Radzen.JustifyContent.SpaceBetween">
+		<RadzenColumn>
+			<RadzenText>Datum uplate: @Payment.Date.ToString("dd.MM.yyyy.")</RadzenText>
+			<RadzenText>Vrijedi do: @Payment.DateUntil.ToString("dd.MM.yyyy.")</RadzenText>
+		</RadzenColumn>
+		<RadzenButton Click=@DownloadPaymentProof>Preuzmi potvrdu</RadzenButton>
+	</RadzenRow>
+</RadzenCard>
+
+@code {
+	[Parameter]
+	public Payment Payment { get; set; }
+	[Parameter]
+	public User User { get; set; }
+
+	public async Task DownloadPaymentProof()
+	{
+		await PdfService.DownloadPdf(Payment.File, $"Potvrda_uplate_za_godinu_{Payment.Year}_{User.Name}_{User.Surname}");
+	}
+}
