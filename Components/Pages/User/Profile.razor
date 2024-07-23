@@ -361,7 +361,7 @@
 
 	private async Task DownloadMembershipConfirmation()
 	{
-		byte[] documentBytes = PdfService.GenerateMembershipConfirmation(user!);
+		byte[] documentBytes = PdfService.GetMembershipConfirmation(user!);
 		await PdfService.DownloadPdf(documentBytes, $"Potvrda_o_clanstvu_{user.Name}_{user.Surname}_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss")}");
 	}
 }
