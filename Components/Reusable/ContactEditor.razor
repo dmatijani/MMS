@@ -66,13 +66,16 @@
 
 	private void RemoveOneContact(int id)
 	{
-		UserData.RemoveAll(ud => ud.Id == id);
+		UserData = UserData.OrderBy(ud => ud.Value.Trim() != "" ? 0 : 1).ToList();
+		UserData.RemoveAt(UserData.Count() - 1);
+		StateHasChanged();
 	}
 
 	private void RemoveAllContacts()
 	{
 		contactId = 0;
-		UserData = new List<UserDataViewModel>();
+		UserData.RemoveAll(ud => true);
+		StateHasChanged();
 	}
 
 	private void AddContact()
