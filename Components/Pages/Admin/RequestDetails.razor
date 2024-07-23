@@ -85,7 +85,7 @@
 	}
 </RadzenRow>
 
-@code {
+	@code {
 	[Parameter]
 	public int UserId { get; set; } = 0;
 
@@ -128,7 +128,11 @@
 
 		if (clicked == true)
 		{
+			sending = true;
+			StateHasChanged();
 			await RejectRequest();
+			sending = false;
+			StateHasChanged();
 		}
 	}
 
@@ -147,15 +151,17 @@
 
 		if (clicked == true)
 		{
+			sending = true;
+			StateHasChanged();
 			await ApproveRequest();
+			sending = false;
+			StateHasChanged();
 		}
 	}
 
 	private async Task RejectRequest()
 	{
-		sending = true;
 		ServiceResponse response = await UserService.RejectRequest(user);
-		sending = false;
 		rejected = response.Flag;
 		if (!response.Flag)
 		{
@@ -165,25 +171,21 @@
 
 	private async Task ApproveRequest()
 	{
-		sending = true;
 		approved = false;
 		ApprovedRequestServiceResponse response = await UserService.ApproveRequest(user);
 		if (!response.Flag)
 		{
 			Notifications.ShowErrorNotification(response.Message);
-			sending = false;
 			return;
 		}
 
 		if (response.user == null)
 		{
 			Notifications.ShowErrorNotification("Greška kod dohvata novog korisnika.");
-			sending = false;
 			return;
 		}
 
 		bool successful = await SendApprovedRequestMail(response.user, response.password);
-		sending = false;
 		approved = successful;
 		if (!successful)
 		{

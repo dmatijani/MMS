@@ -63,6 +63,12 @@ namespace MMS.Services
 			return new ServiceResponse(true, "Uspjeh");
 		}
 
+		public async Task<ServiceResponse> DeleteUser(User user)
+		{
+			await _repo.Delete(user);
+			return new ServiceResponse(true, "Uspjeh");
+		}
+
 		public async Task<ApprovedRequestServiceResponse> ApproveRequest(User user)
 		{
 			if (user.Approved == true)

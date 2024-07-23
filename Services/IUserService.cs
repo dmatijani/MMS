@@ -14,6 +14,7 @@ namespace MMS.Services
 		public Task<User?> GetUserById(int userId, bool approved = true);
 
 		public Task<ServiceResponse> RejectRequest(User user);
+		public Task<ServiceResponse> DeleteUser(User user);
 
 		public Task<ApprovedRequestServiceResponse> ApproveRequest(User user);
 

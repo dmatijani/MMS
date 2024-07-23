@@ -2,13 +2,16 @@
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
 @attribute [StreamRendering]
+@using MMS.Components.Helpers
 @using MMS.Models
 @using MMS.Services
+@using MMS.Services.Responses
 @using Radzen
 @using Microsoft.AspNetCore.Authorization
 @inject IUserService UserService
 @inject NavigationManager NavigationManager
 @inject DialogService DialogService
+@inject INotifications Notifications
 
 <PageTitle>MMS - Postojeći korisnici</PageTitle>
 <h3>Postojeći korisnici</h3>
@@ -70,17 +73,22 @@
 				</Template>
 			</RadzenDataList>
 		}
+		@if (sending)
+		{
+			<RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+		}
 	}
 </RadzenRow>
 
+
 @code {
 	public List<User> ExistingUsers { get; set; } = new List<User>();
-	bool loading = true;
+	public bool loading = true;
+	public bool sending = false;
 
 	protected override async Task OnInitializedAsync()
 	{
-		ExistingUsers = await UserService.GetExistingUsers();
-		loading = false;
+		await LoadUsers();
 	}
 
 	private void ViewPaymentsButtonClick(User user)
@@ -88,8 +96,46 @@
 		// TODO: navigate to payments page for user
 	}
 
-	private void RemoveUserButtonClick(User user)
+	private async void RemoveUserButtonClick(User user)
 	{
-		// TODO: show user removal dialog
+		bool? clicked = await DialogService.Confirm($"Jesi li siguran da želiš ukloniti korisnika {user.Name} {user.Surname}?", "Pazi!", new ConfirmOptions
+		{
+			OkButtonText = "Da",
+			CancelButtonText = "Ne"
+		});
+
+		if (clicked == null)
+		{
+			return;
+		}
+
+		if (clicked == true)
+		{
+			await DeleteUser(user);
+		}
+	}
+
+	private async Task DeleteUser(User user)
+	{
+		sending = true;
+		ServiceResponse response = await UserService.DeleteUser(user);
+		sending = false;
+		if (!response.Flag)
+		{
+			Notifications.ShowErrorNotification(response.Message);
+		} else
+		{
+			Notifications.ShowSuccessNotification("Korisnik uspješno izbrisan!");
+			await LoadUsers();
+		}
+	}
+
+	private async Task LoadUsers()
+	{
+		loading = true;
+		StateHasChanged();
+		ExistingUsers = await UserService.GetExistingUsers();
+		loading = false;
+		StateHasChanged();
 	}
 }
