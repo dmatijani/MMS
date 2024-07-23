@@ -15,6 +15,7 @@
 @inject Notifications Notifications
 @inject DialogService DialogService
 @inject MailService MailService
+@inject PdfService PdfService
 
 <PageTitle>MMS - Zahtjev</PageTitle>
 <h3>Pregled zahtjeva</h3>
@@ -165,8 +166,8 @@
 	private async Task ApproveRequest()
 	{
 		sending = true;
+		approved = false;
 		ApprovedRequestServiceResponse response = await UserService.ApproveRequest(user);
-		approved = response.Flag;
 		if (!response.Flag)
 		{
 			Notifications.ShowErrorNotification(response.Message);
@@ -181,22 +182,42 @@
 			return;
 		}
 
-		await SendApprovedRequestMail(response.user);
+		bool successful = await SendApprovedRequestMail(response.user);
 		sending = false;
+		approved = successful;
+		if (!successful)
+		{
+			Notifications.ShowErrorNotification("Greška kod slanja maila.");
+		}
 	}
 
-	private async Task SendApprovedRequestMail(User user)
+	private async Task<bool> SendApprovedRequestMail(User user)
 	{
 		string message = "<h3>Članstvo je odobreno</h3>";
 		message += "Poštovani, Vaše članstvo je odobreno.";
 		message += " U privitku se nalazi <span style='font-style: italic;'>Rješenje o članstvu</span> koje sadrži Vaše pristupne podatke.";
-		MailMessage mail = MailService.MakeMailMessage(user.Email, "Vaše je članstvo odobreno - MMS", message, new List<Attachment>(), true);
-		try
+
+		Attachment? attachment = null;
+		byte[] documentBytes = PdfService.GetMembershipDecision(user!);
+		using (MemoryStream ms = new MemoryStream(documentBytes))
 		{
-			await MailService.SendMail(mail);
-		} catch (Exception ex)
-		{
-			Notifications.ShowErrorNotification("Greška kod slanja maila.");
+			attachment = new Attachment(ms, "Rješenje_o_članstvu.pdf", "application/pdf");
+
+			if (attachment == null)
+			{
+				return false;
+			}
+
+			MailMessage mail = MailService.MakeMailMessage(user.Email, "Vaše je članstvo odobreno - MMS", message, new List<Attachment> { attachment }, true);
+			try
+			{
+				bool successful = await MailService.SendMail(mail);
+				return successful;
+			}
+			catch (Exception ex)
+			{
+				return false;
+			}
 		}
 	}
 }

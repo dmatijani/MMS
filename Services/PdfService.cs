@@ -36,6 +36,20 @@ namespace MMS.Services
 			}
 		}
 
+		public byte[] GetMembershipDecision(User user)
+		{
+			using (MemoryStream memoryStream = new MemoryStream())
+			{
+				PdfWriter writer = new PdfWriter(memoryStream);
+				PdfDocument pdf = new PdfDocument(writer);
+
+				GenerateMembershipDecision(pdf, user);
+
+				byte[] bytes = memoryStream.ToArray();
+				return bytes;
+			}
+		}
+
 		public async Task DownloadPdf(byte[] pdfBytes, string filename = "document.pdf")
 		{
 			string documentBase64 = Convert.ToBase64String(pdfBytes);
@@ -116,6 +130,73 @@ namespace MMS.Services
 			{
 				document.Add(new Paragraph("Nema zabilježenih plaćanja.").SetFont(font));
 			}
+
+			document.Close();
+		}
+
+		private void GenerateMembershipDecision(PdfDocument pdf, User user)
+		{
+			Document document = new Document(pdf);
+
+			string fontPath = Path.Combine(_env.WebRootPath, "arial.ttf");
+			var font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+
+			string footerText = $"Generirano {DateTime.Now.ToString("dd.MM.yyyy. u HH:mm:ss")} od strane MMS sustava";
+			pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, new FooterEventHandler(document, font, footerText));
+
+			Paragraph title = new Paragraph("Rješenje o članstvu")
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFontSize(20)
+				.SetBold()
+				.SetFont(font);
+			document.Add(title);
+
+			document.Add(new Paragraph("\n").SetFont(font));
+
+			document.Add(new Paragraph($"Zahtjev za članstvom poslan je {user.MembershipRequestDate.ToString("dd.MM.yyyy. u HH:mm:ss")}.").SetFont(font));
+			document.Add(new Paragraph($"Profil člana/ice {user.Name} {user.Surname} odobren je datuma {user.MembershipApprovalDate.ToString("dd.MM.yyyy. u HH:mm:ss")}.").SetFont(font));
+
+			document.Add(new Paragraph("\n").SetFont(font));
+
+			document.Add(new Paragraph($"Ime: {user.Name}").SetFont(font));
+			document.Add(new Paragraph($"Prezime: {user.Surname}").SetFont(font));
+			document.Add(new Paragraph($"Email: {user.Email}").SetFont(font));
+
+			if (user.UserData.Any())
+			{
+				foreach (var contact in user.UserData)
+				{
+					document.Add(new Paragraph($"{contact.Name}: {contact.Value}").SetFont(font));
+				}
+			}
+
+			document.Add(new Paragraph("\n").SetFont(font));
+
+			Paragraph credentialsTitle = new Paragraph("Pristupni podaci")
+				.SetTextAlignment(TextAlignment.LEFT)
+				.SetFontSize(16)
+				.SetBold()
+				.SetFont(font);
+			document.Add(credentialsTitle);
+
+			document.Add(new Paragraph("Za prijavu u sustav, koristite ove pristupne podatke.").SetFont(font));
+			document.Add(new Paragraph($"Email: {user.Email}").SetFont(font));
+			document.Add(new Paragraph($"Lozinka: {user.Password}").SetFont(font));
+
+			document.Add(new Paragraph("\n").SetFont(font));
+
+			Paragraph paymentInfoTitle = new Paragraph("Podaci za plaćanje")
+				.SetTextAlignment(TextAlignment.LEFT)
+				.SetFontSize(16)
+				.SetBold()
+				.SetFont(font);
+			document.Add(paymentInfoTitle);
+
+			document.Add(new Paragraph("Vaš je račun odobren, no potrebno je prvo platiti članarinu. Članarina se plaća za godinu i članstvo vrijedi godinu dana od dana plaćanja. Nakon što napravite uplatu, prijavite se na Vaš profil te Vam je tamo omogućeno priložiti potvrdu o plaćanju.").SetFont(font));
+			document.Add(new Paragraph("IBAN: HR1234567890123456789").SetFont(font));
+			document.Add(new Paragraph("Iznos: 50€").SetFont(font));
+			document.Add(new Paragraph($"Opis plaćanja: Uplata članarine za godinu {DateTime.Now.Year}").SetFont(font));
+			document.Add(new Paragraph("Napišite godinu za koju plaćate kada budete plaćali članarinu idućih godina.").SetFont(font));
 
 			document.Close();
 		}
