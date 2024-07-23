@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.JSInterop;
 using MMS.Components;
 using MMS.Components.Helpers;
 using MMS.Data;
@@ -31,6 +32,7 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<Notifications>();
 
 var app = builder.Build();
