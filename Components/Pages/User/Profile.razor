@@ -22,7 +22,7 @@
 
 <RadzenText><a href="/">Natrag na početnu stranicu.</a></RadzenText>
 
-<RadzenText>Na ovoj stranici moguće je vidjeti informacije o Vašem profilu te priložiti potvrde o uplati.</RadzenText>
+<RadzenText>Na ovoj stranici moguće je vidjeti informacije o Vašem profilu te priložiti potvrde o uplati, kao i vidjeti sve vaše uplate.</RadzenText>
 
 <RadzenRow JustifyContent="JustifyContent.Center">
 	@if (user == null || loading)
@@ -88,6 +88,7 @@
 						<span style="font-weight: bold;">Članarina vrijedi do:</span> @lastPayment!.DateUntil.ToString("dd.MM.yyyy.")
 						<span> (broj dana: @((lastPayment!.DateUntil - DateTime.Now.Date).Days))</span>
 					</RadzenText>
+					<RadzenButton Click=@CheckUserPayments Style="width: 200px;">Pregled uplata</RadzenButton>
 				}
 				<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
 					@if (canPay)
@@ -137,7 +138,7 @@
 	}
 </RadzenRow>
 
-	@code {
+@code {
 	[CascadingParameter]
 	private Task<AuthenticationState> authenticationState { get; set; }
 
@@ -367,5 +368,10 @@
 	{
 		byte[] documentBytes = PdfService.GetMembershipConfirmation(user!);
 		await PdfService.DownloadPdf(documentBytes, $"Potvrda_o_članstvu_{user.Name}_{user.Surname}_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss")}");
+	}
+
+	private void CheckUserPayments()
+	{
+		NavigationManager.NavigateTo("/payments");
 	}
 }
