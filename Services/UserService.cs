@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace MMS.Services
 {
-	public class UserService
+	public class UserService : IUserService
 	{
 		private readonly IUserRepository _repo;
 		private readonly IUserDataRepository _dataRepo;

@@ -4,7 +4,7 @@ using MMS.Services.Responses;
 
 namespace MMS.Services
 {
-	public class PaymentService
+	public class PaymentService : IPaymentService
 	{
 		private readonly IPaymentRepository _repo;
 

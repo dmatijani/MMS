@@ -10,12 +10,12 @@
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "User")]
 @attribute [StreamRendering]
-@inject UserService UserService
-@inject PaymentService PaymentService
+@inject IUserService UserService
+@inject IPaymentService PaymentService
 @inject NavigationManager NavigationManager
-@inject Notifications Notifications
+@inject INotifications Notifications
 @inject DialogService DialogService
-@inject PdfService PdfService
+@inject IPdfService PdfService
 
 <PageTitle>MMS - Moj profil</PageTitle>
 <h3>Moj profil</h3>

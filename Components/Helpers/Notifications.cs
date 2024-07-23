@@ -2,7 +2,7 @@
 
 namespace MMS.Components.Helpers
 {
-	public class Notifications
+	public class Notifications : INotifications
 	{
 		private NotificationService _service { get; set; }
 

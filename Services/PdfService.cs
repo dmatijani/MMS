@@ -1,5 +1,4 @@
 ﻿using iText.IO.Font;
-using iText.IO.Font.Constants;
 using iText.Kernel.Events;
 using iText.Kernel.Font;
 using iText.Kernel.Pdf;
@@ -11,7 +10,7 @@ using MMS.Models;
 
 namespace MMS.Services
 {
-	public class PdfService
+	public class PdfService : IPdfService
 	{
 		private readonly IJSRuntime _js;
 		private readonly IWebHostEnvironment _env;

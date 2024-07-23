@@ -4,7 +4,7 @@ using System.Net.Mail;
 
 namespace MMS.Services
 {
-	public class MailService
+	public class MailService : IMailService
 	{
 		private readonly SmtpSettings _smtpSettings;
 		private string _from { get; set; }

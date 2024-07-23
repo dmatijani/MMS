@@ -10,12 +10,12 @@
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
 @attribute [StreamRendering]
-@inject UserService UserService
+@inject IUserService UserService
 @inject NavigationManager NavigationManager
-@inject Notifications Notifications
+@inject INotifications Notifications
 @inject DialogService DialogService
-@inject MailService MailService
-@inject PdfService PdfService
+@inject IMailService MailService
+@inject IPdfService PdfService
 
 <PageTitle>MMS - Zahtjev</PageTitle>
 <h3>Pregled zahtjeva</h3>
@@ -63,7 +63,7 @@
 				<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="check_circle" Text="Potvrdi zahtjev" Click=@ApproveRequestButtonClick Disabled=@(sending || rejected || approved) />
 				<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="report" Text="Odbij zahtjev" Click=@RejectRequestButtonClick Disabled=@(sending || rejected || approved) />
 			</RadzenRow>
-			@if (sending && !rejected && !approved)
+			@if (sending)
 			{
 				<RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
 			}

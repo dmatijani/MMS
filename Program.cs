@@ -25,19 +25,19 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddScoped<AppDbContext>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<PasswordHasher>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<LoginService>();
-builder.Services.AddScoped<PaymentService>();
-builder.Services.AddScoped<PdfService>();
-builder.Services.AddScoped<Notifications>();
-builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
-builder.Services.AddScoped<MailService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<INotifications, Notifications>();
+builder.Services.AddScoped<IMailService, MailService>();
 
 var app = builder.Build();
 
