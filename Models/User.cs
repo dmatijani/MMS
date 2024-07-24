@@ -21,7 +21,7 @@ namespace MMS.Models
 		public string Surname { get; set; }
 		[Required]
 		public bool Approved { get; set; }
-		[Column(TypeName = "text")]
+		[Column(TypeName = "nvarchar(max)")]
 		public string MembershipReason { get; set; }
 		public DateTime MembershipRequestDate { get; set; }
 		public DateTime MembershipApprovalDate { get; set; }
