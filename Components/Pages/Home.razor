@@ -1,5 +1,4 @@
 ﻿@page "/"
-@rendermode InteractiveServer
 @using MMS.Components.Reusable
 @using Radzen
 @using MMS.Data.Repositories
@@ -20,11 +19,11 @@
 			<RadzenRow JustifyContent="JustifyContent.Center" Gap="6rem">
 				<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
 					<RadzenText>Imam račun!</RadzenText>
-					<RadzenButton Click=@LogInButtonClick style="width: 200px;">Prijava</RadzenButton>
+					<a href="/login"><RadzenButton style="width: 200px;">Prijava</RadzenButton></a>
 				</RadzenStack>
 				<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
 					<RadzenText>Nemam račun!</RadzenText>
-					<RadzenButton Click=@MembershipRequestButtonClick style="width: 200px;">Sastavi zahtjev</RadzenButton>
+					<a href="/membership-request"><RadzenButton style="width: 200px;">Sastavi zahtjev</RadzenButton></a>
 				</RadzenStack>
 			</RadzenRow>
 		</RadzenStack>
@@ -35,11 +34,11 @@
 				<RadzenRow JustifyContent="JustifyContent.Center" Gap="6rem">
 					<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
 						<RadzenText>Želim na svoj profil.</RadzenText>
-						<RadzenButton Click=@ProfileButtonClick style="width: 200px;">Profil</RadzenButton>
+						<a href="/profile"><RadzenButton style="width: 200px;">Profil</RadzenButton></a>
 					</RadzenStack>
 					<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
 						<RadzenText>Želim se odjaviti.</RadzenText>
-						<RadzenButton Click=@LogoutButtonClick style="width: 200px;">Odjava</RadzenButton>
+						<a href="/logout"><RadzenButton style="width: 200px;">Odjava</RadzenButton></a>
 					</RadzenStack>
 				</RadzenRow>
 			</RadzenStack>
@@ -63,25 +62,5 @@
 		}
 
 		await UserService.AddAdminUser();
-	}
-
-	private void LogInButtonClick()
-	{
-		NavigationManager.NavigateTo("/login");
-	}
-
-	private void MembershipRequestButtonClick()
-	{
-		NavigationManager.NavigateTo("/membership-request");
-	}
-
-	private void ProfileButtonClick()
-	{
-		NavigationManager.NavigateTo("/profile");
-	}
-
-	private void LogoutButtonClick()
-	{
-		NavigationManager.NavigateTo("/logout");
 	}
 }
