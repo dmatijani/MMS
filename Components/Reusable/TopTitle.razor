@@ -1,6 +1,12 @@
 ﻿@using Radzen
 
 <RadzenCard Style="margin-top: 30px;">
+	@if (BackHref != "")
+	{
+		<a href=@BackHref style="position: absolute;">
+			<img src="assets/back.svg" alt="Natrag" height="50" />
+		</a>
+	}
 	<RadzenStack AlignItems="AlignItems.Center">
 		@if (BigTitle)
 		{
@@ -19,6 +25,9 @@
 
 	[Parameter]
 	public bool BigTitle { get; set; } = false;
+
+	[Parameter]
+	public string BackHref { get; set; } = "";
 
 	[Parameter]
 	public RenderFragment ChildContent { get; set; }
