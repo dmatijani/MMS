@@ -1,26 +1,49 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@using Radzen
 @using MMS.Data.Repositories
 @using MMS.Models
 @using System.Security.Claims
 @using MMS.Services
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
+@inject NavigationManager NavigationManager
 
 <PageTitle>MMS</PageTitle>
-<h1>MMS</h1>
 
-<RadzenCard Class="rz-background-color-info-lighter">
-	<AuthorizeView>
-		<NotAuthorized>
-			<RadzenText>Pritisni <a href="/login">ovdje</a> za prijavu.</RadzenText>
-			<RadzenText>Nemaš račun? Pritisni <a href="/membership-request">ovdje</a> za sastavljanje <span style="font-style: italic;">Zahtjev za članstvom</span>.</RadzenText>
-		</NotAuthorized>
-		<Authorized>
-			<RadzenText>Hej, <b>@context.User.Identity?.Name</b>.</RadzenText>
-			<RadzenText><a href="/profile">Profil</a></RadzenText>
-			<RadzenText><a href="/logout">Odjava</a></RadzenText>
-		</Authorized>
-	</AuthorizeView>
+<RadzenCard Style="margin-top: 30px;">
+	<RadzenStack AlignItems="AlignItems.Center" Gap="3rem">
+		<h1 style="font-size: 8em; font-weight: bold;">MMS</h1>
+		<AuthorizeView>
+			<NotAuthorized>
+				<RadzenText TextStyle="TextStyle.H6">Dobrodošli u sustav MMS! Ako nemate račun, možete poslati <span style="font-style: italic;">Zahtjev za članstvom</span>.</RadzenText>
+				<RadzenRow JustifyContent="JustifyContent.Center" Gap="6rem">
+					<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+						<RadzenText>Imam račun!</RadzenText>
+						<RadzenButton Click=@LogInButtonClick style="width: 200px;">Prijava</RadzenButton>
+					</RadzenStack>
+					<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+						<RadzenText>Nemam račun!</RadzenText>
+						<RadzenButton Click=@MembershipRequestButtonClick style="width: 200px;">Sastavi zahtjev</RadzenButton>
+					</RadzenStack>
+				</RadzenRow>
+			</NotAuthorized>
+			<Authorized>
+				<RadzenText TextStyle="TextStyle.H6">Hej, <b>@context.User.Identity?.Name</b>! Prijavljeni ste u sustav.</RadzenText>
+				<RadzenRow JustifyContent="JustifyContent.Center" Gap="6rem">
+					<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+						<RadzenText>Želim na svoj profil.</RadzenText>
+						<RadzenButton Click=@ProfileButtonClick style="width: 200px;">Profil</RadzenButton>
+					</RadzenStack>
+					<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+						<RadzenText>Želim se odjaviti.</RadzenText>
+						<RadzenButton Click=@LogoutButtonClick style="width: 200px;">Odjava</RadzenButton>
+					</RadzenStack>
+				</RadzenRow>
+			</Authorized>
+		</AuthorizeView>
+		
+	</RadzenStack>
 </RadzenCard>
 
 @code {
@@ -39,5 +62,25 @@
 		}
 
 		await UserService.AddAdminUser();
+	}
+
+	private void LogInButtonClick()
+	{
+		NavigationManager.NavigateTo("/login");
+	}
+
+	private void MembershipRequestButtonClick()
+	{
+		NavigationManager.NavigateTo("/membership-request");
+	}
+
+	private void ProfileButtonClick()
+	{
+		NavigationManager.NavigateTo("/profile");
+	}
+
+	private void LogoutButtonClick()
+	{
+		NavigationManager.NavigateTo("/logout");
 	}
 }
