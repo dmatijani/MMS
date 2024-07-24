@@ -1,16 +1,23 @@
 ﻿@page "/logout"
+@using MMS.Components.Reusable
 @using MMS.Services
 @using MMS.Services.Responses
 @using Microsoft.AspNetCore.Authentication
+@using Radzen
 @inject NavigationManager NavigationManager
 @inject ILoginService LoginService
 
 <PageTitle>MMS - Odjava</PageTitle>
-<h3>Odjava</h3>
 
-<RadzenText>Uspješno ste odjavljeni.</RadzenText>
-<RadzenText><a href="/">Početna stranica</a></RadzenText>
-<RadzenText><a href="/login">Prijava</a></RadzenText>
+<TopTitle Title="Odjava">
+	<RadzenStack AlignItems="AlignItems.Center">
+		<RadzenText>Uspješno ste odjavljeni.</RadzenText>
+		<RadzenRow JustifyContent="JustifyContent.Center" Gap="3rem">
+			<a href="/"><RadzenButton style="width: 200px;">Početna stranica</RadzenButton></a>
+			<a href="/login"><RadzenButton style="width: 200px;">Prijava</RadzenButton></a>
+		</RadzenRow>
+	</RadzenStack>
+</TopTitle>
 
 @code {
 	[CascadingParameter]

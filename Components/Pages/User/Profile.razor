@@ -19,14 +19,10 @@
 @inject IPdfService PdfService
 
 <PageTitle>MMS - Moj profil</PageTitle>
-<h3>Moj profil</h3>
 
-<RadzenText><a href="/">Natrag na početnu stranicu.</a></RadzenText>
-
-<RadzenText>Na ovoj stranici moguće je vidjeti informacije o Vašem profilu te priložiti potvrde o uplati, kao i vidjeti sve vaše uplate.</RadzenText>
-
-<TitleHeader>
-</TitleHeader>
+<TopTitle Title="Moj profil">
+	Na ovoj stranici moguće je vidjeti informacije o Vašem profilu te priložiti potvrde o uplati, kao i vidjeti sve vaše uplate.
+</TopTitle>
 
 <RadzenRow JustifyContent="JustifyContent.Center">
 	@if (user == null || loading)
@@ -62,7 +58,7 @@
 				}
 			</RadzenAlert>
 		}
-		<RadzenCard Class="rz-background-color-info-lighter" Style="width: 100%;">
+		<RadzenCard Class="rz-background-color-info-lighter" Style="width: 100%; margin-top: 30px;">
 			<RadzenStack Style="overflow-x: auto;">
 				<RadzenText TextStyle="TextStyle.H6">@(user.Name + " " + user.Surname)</RadzenText>
 				<RadzenText><span style="font-weight: bold;">Primarna email adresa:</span> <code style="color: black">@user.Email</code></RadzenText>

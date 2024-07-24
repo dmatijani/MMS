@@ -11,14 +11,13 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>MMS - Pregled uplata</PageTitle>
-<h3>Pregled uplata</h3>
 
-<RadzenText><a href="/admin/users">Natrag na prikaz korisnika.</a></RadzenText>
-
-@if (user != null)
-{
-	<RadzenText>Uplate za člana @user.Name @user.Surname:</RadzenText>
-}
+<TopTitle Title="Pregled uplata">
+	@if (user != null)
+	{
+		<RadzenText>Uplate za člana @user.Name @user.Surname:</RadzenText>
+	}
+</TopTitle>
 
 <RadzenRow JustifyContent="JustifyContent.Center">
 	@if (user == null || loading)

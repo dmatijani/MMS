@@ -1,4 +1,5 @@
 ﻿@page "/login"
+@using MMS.Components.Reusable
 @using Radzen
 @using MMS.Models.ViewModels
 @using System.Security.Claims
@@ -11,34 +12,31 @@
 
 <PageTitle>MMS - Prijava</PageTitle>
 
-<RadzenCard Style="margin-top: 30px;">
-	<RadzenStack AlignItems="AlignItems.Center">
-		<h1>Prijava</h1>
-		<RadzenText TextStyle="TextStyle.H6">Na ovoj stranici možete se prijaviti.</RadzenText>
-		<RadzenText>Nemate račun? <a href="/membership-request">Pošaljite <span style="font-style: italic;">Zahtjev za članstvom</span>.</a></RadzenText>
-		<RadzenCard Variant="Variant.Flat" class="rz-background-color-info-lighter" Style="width: 50%">
-			<EditForm Model="@Model" OnValidSubmit="ValidSubmit" OnInvalidSubmit="InvalidSubmit" FormName="LoginForm">
-				<RadzenStack AlignItems="AlignItems.Center">
-					<DataAnnotationsValidator />
-					<div class="mb-3" Style="width: 40%">
-						<RadzenLabel>Email</RadzenLabel>
-						<InputText @bind-Value="Model.Email" class="form-control" placeholder="Email" />
-						<ValidationMessage For="() => Model.Email" />
-					</div>
-					<div class="mb-3" Style="width: 40%">
-						<RadzenLabel>Lozinka</RadzenLabel>
-						<InputText @bind-Value="Model.Password" class="form-control" placeholder="Password" />
-						<ValidationMessage For="() => Model.Password" />
-					</div>
-					<div class="mb-3 text-center" Style="width: 40%">
-						<span class="text-danger">@error</span>
-					</div>
-					<RadzenButton type="submit">Prijavi se</RadzenButton>
-				</RadzenStack>
-			</EditForm>
-		</RadzenCard>
-	</RadzenStack>
-</RadzenCard>
+<TopTitle Title="Prijava">
+	<RadzenText TextStyle="TextStyle.H6">Na ovoj stranici možete se prijaviti.</RadzenText>
+	<RadzenText>Nemate račun? <a href="/membership-request">Pošaljite <span style="font-style: italic;">Zahtjev za članstvom</span>.</a></RadzenText>
+	<RadzenCard Variant="Variant.Flat" class="rz-background-color-info-lighter" Style="width: 50%">
+		<EditForm Model="@Model" OnValidSubmit="ValidSubmit" OnInvalidSubmit="InvalidSubmit" FormName="LoginForm">
+			<RadzenStack AlignItems="AlignItems.Center">
+				<DataAnnotationsValidator />
+				<div class="mb-3" Style="width: 40%">
+					<RadzenLabel>Email</RadzenLabel>
+					<InputText @bind-Value="Model.Email" class="form-control" placeholder="Email" />
+					<ValidationMessage For="() => Model.Email" />
+				</div>
+				<div class="mb-3" Style="width: 40%">
+					<RadzenLabel>Lozinka</RadzenLabel>
+					<InputText type="password" @bind-Value="Model.Password" class="form-control" placeholder="Password" />
+					<ValidationMessage For="() => Model.Password" />
+				</div>
+				<div class="mb-3 text-center" Style="width: 40%">
+					<span class="text-danger">@error</span>
+				</div>
+				<RadzenButton type="submit">Prijavi se</RadzenButton>
+			</RadzenStack>
+		</EditForm>
+	</RadzenCard>
+</TopTitle>
 
 @code {
 	[CascadingParameter]

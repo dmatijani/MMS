@@ -1,5 +1,6 @@
 ﻿@page "/admin/requests/{userId:int}"
 @using MMS.Components.Helpers
+@using MMS.Components.Reusable
 @using MMS.Models
 @using MMS.Models.ViewModels
 @using MMS.Services
@@ -18,11 +19,9 @@
 @inject IPdfService PdfService
 
 <PageTitle>MMS - Zahtjev</PageTitle>
-<h3>Pregled zahtjeva</h3>
+<TopTitle Title="Pregled zahtjeva"></TopTitle>
 
-<RadzenText><a href="/admin/requests">Natrag na pregled zahtjeva.</a></RadzenText>
-
-<RadzenRow JustifyContent="JustifyContent.Center">
+<RadzenRow JustifyContent="JustifyContent.Center" Style="margin-top: 30px;">
 	@if (user == null || loading)
 	{
 		<RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Large" />
@@ -59,17 +58,19 @@
 				</RadzenCard>
 			</RadzenStack>
 		</RadzenCard>
-		<RadzenFieldset Text="Potvrda zahtjeva" Style="width: 100%;">
-			<RadzenText>Ovaj zahtjev možete potvrditi, ili ukloniti. Lozinka i pristupni podaci za korisnika automatski se generira i šalje tom korisniku na email.</RadzenText>
-			<RadzenRow JustifyContent="JustifyContent.SpaceEvenly">
-				<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="check_circle" Text="Potvrdi zahtjev" Click=@ApproveRequestButtonClick Disabled=@(sending || rejected || approved) />
-				<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="report" Text="Odbij zahtjev" Click=@RejectRequestButtonClick Disabled=@(sending || rejected || approved) />
-			</RadzenRow>
-			@if (sending)
-			{
-				<RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
-			}
-		</RadzenFieldset>
+		<RadzenCard Style="width: 100%;">
+			<RadzenFieldset Text="Potvrda zahtjeva" Style="width: 100%;">
+				<RadzenText>Ovaj zahtjev možete potvrditi, ili ukloniti. Lozinka i pristupni podaci za korisnika automatski se generira i šalje tom korisniku na email.</RadzenText>
+				<RadzenRow JustifyContent="JustifyContent.SpaceEvenly">
+					<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="check_circle" Text="Potvrdi zahtjev" Click=@ApproveRequestButtonClick Disabled=@(sending || rejected || approved) />
+					<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="report" Text="Odbij zahtjev" Click=@RejectRequestButtonClick Disabled=@(sending || rejected || approved) />
+				</RadzenRow>
+				@if (sending)
+				{
+					<RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+				}
+			</RadzenFieldset>
+		</RadzenCard>
 		if (rejected || approved)
 		{
 			<RadzenAlert AlertStyle="AlertStyle.Success" Title="Uspjeh!">

@@ -1,0 +1,25 @@
+﻿@using Radzen
+
+<RadzenCard Style="margin-top: 30px;">
+	<RadzenStack AlignItems="AlignItems.Center">
+		@if (BigTitle)
+		{
+			<h1 style="font-size: 8em; font-weight: bold;">@Title.ToUpper()</h1>
+		} else
+		{
+			<h1>@Title.ToUpper()</h1>
+		}
+		<RadzenText TextStyle="TextStyle.H6">@ChildContent</RadzenText>
+	</RadzenStack>
+</RadzenCard>
+
+@code {
+	[Parameter]
+	public string Title { get; set; }
+
+	[Parameter]
+	public bool BigTitle { get; set; } = false;
+
+	[Parameter]
+	public RenderFragment ChildContent { get; set; }
+}

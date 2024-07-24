@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
 @attribute [StreamRendering]
+@using MMS.Components.Reusable
 @using Radzen
 @using MMS.Models
 @using MMS.Services
@@ -10,73 +11,77 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>MMS - Trenutačni zahtjevi</PageTitle>
-<h3>Trenutačni zahtjevi</h3>
 
-<RadzenText><a href="/admin">Natrag na administratorovu početnu stranicu.</a></RadzenText>
+<TopTitle Title="Trenutačni zahtjevi">
+	<RadzenText>Na ovoj stranici moguće je vidjeti sve trenutačne zahtjeve za članstvom.</RadzenText>
+</TopTitle>
 
-<RadzenText>Na ovoj stranici moguće je vidjeti sve trenutačne zahtjeve za članstvom.</RadzenText>
-
-<RadzenRow JustifyContent="JustifyContent.Center">
-	@if (loading)
-	{
-		<RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Large" />
-	} else
-	{
-		if (NonApprovedRequests.Count == 0)
+<RadzenCard style="margin-top: 30px;">
+	<RadzenRow JustifyContent="JustifyContent.Center">
+		@if (loading)
 		{
-			<RadzenStack AlignItems="AlignItems.Center">
-				<RadzenText>Nema trenutačnih zahtjeva!</RadzenText>
-				<RadzenText><a href="/admin">Natrag na administratorsku početnu stranicu.</a></RadzenText>
-			</RadzenStack>
-		} else
-		{
-			<RadzenDataList AllowVirtualization="false" WrapItems="true" AllowPaging="true" Data=@NonApprovedRequests TItem="User" PageSize="5" ShowPagingSummary="true" Style="width: 100%;">
-				<Template Context="user">
-					<RadzenCard class="rz-p-0" Style="width: 100%; overflow: hidden;">
-						<RadzenRow JustifyContent="JustifyContent.SpaceBetween">
-							<RadzenColumn Class="rz-background-color-info-lighter" Style="padding: 10px" SizeLG="3">
-								<RadzenText TextStyle="TextStyle.H6">@(user.Name + " " + user.Surname)</RadzenText>
-								<RadzenText><code style="color: black;">@user.Email</code></RadzenText>
-								<RadzenText>Zahtjev predan @user.MembershipRequestDate.ToString("dd.MM.yyyy. u HH:mm:ss")</RadzenText>
-							</RadzenColumn>
-							<RadzenColumn Style="padding: 10px; overflow-x: auto;" SizeLG="3">
-								<RadzenText TextStyle="TextStyle.H6">Ostali podaci:</RadzenText>
-								@if (user.UserData.Count > 0)
-								{
-									<ul>
-										@foreach (var contact in user.UserData)
-										{
-											<li>@contact.Name: @contact.Value</li>
-										}
-									</ul>
-								}
-								else
-								{
-									<RadzenText Style="font-style: italic;" class="fw-lighter">Ostali podaci nisu navedeni.</RadzenText>
-								}
-							</RadzenColumn>
-							<RadzenColumn Style="padding: 10px" SizeLG="4">
-								<RadzenText TextStyle="TextStyle.H6">Razlog zahtjeva:</RadzenText>
-								@if (user.MembershipReason != "")
-								{
-									<RadzenText>@user.MembershipReason</RadzenText>
-								} else
-								{
-									<RadzenText Style="font-style: italic;" class="fw-lighter">Nije naveden.</RadzenText>
-								}
-							</RadzenColumn>
-							<RadzenColumn Style="padding: 10px" SizeLG="2" Class="rz-background-color-info-lighter rz-text-align-center">
-								<RadzenStack AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Style="height: 100%;">
-									<RadzenButton Click=@(() => OpenRequestDetail(user.Id))>Pregledaj</RadzenButton>
-								</RadzenStack>
-							</RadzenColumn>
-						</RadzenRow>
-					</RadzenCard>
-				</Template>
-			</RadzenDataList>
+			<RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Large" />
 		}
-	}
-</RadzenRow>
+		else
+		{
+			if (NonApprovedRequests.Count == 0)
+			{
+				<RadzenStack AlignItems="AlignItems.Center">
+					<RadzenText>Nema trenutačnih zahtjeva!</RadzenText>
+					<RadzenText><a href="/admin">Natrag na administratorsku početnu stranicu.</a></RadzenText>
+				</RadzenStack>
+			}
+			else
+			{
+				<RadzenDataList AllowVirtualization="false" WrapItems="true" AllowPaging="true" Data=@NonApprovedRequests TItem="User" PageSize="5" ShowPagingSummary="true" Style="width: 100%;">
+					<Template Context="user">
+						<RadzenCard class="rz-p-0" Style="width: 100%; overflow: hidden;">
+							<RadzenRow JustifyContent="JustifyContent.SpaceBetween">
+								<RadzenColumn Class="rz-background-color-info-lighter" Style="padding: 10px" SizeLG="3">
+									<RadzenText TextStyle="TextStyle.H6">@(user.Name + " " + user.Surname)</RadzenText>
+									<RadzenText><code style="color: black;">@user.Email</code></RadzenText>
+									<RadzenText>Zahtjev predan @user.MembershipRequestDate.ToString("dd.MM.yyyy. u HH:mm:ss")</RadzenText>
+								</RadzenColumn>
+								<RadzenColumn Style="padding: 10px; overflow-x: auto;" SizeLG="3">
+									<RadzenText TextStyle="TextStyle.H6">Ostali podaci:</RadzenText>
+									@if (user.UserData.Count > 0)
+									{
+										<ul>
+											@foreach (var contact in user.UserData)
+											{
+												<li>@contact.Name: @contact.Value</li>
+											}
+										</ul>
+									}
+									else
+									{
+										<RadzenText Style="font-style: italic;" class="fw-lighter">Ostali podaci nisu navedeni.</RadzenText>
+									}
+								</RadzenColumn>
+								<RadzenColumn Style="padding: 10px" SizeLG="4">
+									<RadzenText TextStyle="TextStyle.H6">Razlog zahtjeva:</RadzenText>
+									@if (user.MembershipReason != "")
+									{
+										<RadzenText>@user.MembershipReason</RadzenText>
+									}
+									else
+									{
+										<RadzenText Style="font-style: italic;" class="fw-lighter">Nije naveden.</RadzenText>
+									}
+								</RadzenColumn>
+								<RadzenColumn Style="padding: 10px" SizeLG="2" Class="rz-background-color-info-lighter rz-text-align-center">
+									<RadzenStack AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Style="height: 100%;">
+										<RadzenButton Click=@(() => OpenRequestDetail(user.Id))>Pregledaj</RadzenButton>
+									</RadzenStack>
+								</RadzenColumn>
+							</RadzenRow>
+						</RadzenCard>
+					</Template>
+				</RadzenDataList>
+			}
+		}
+	</RadzenRow>
+</RadzenCard>
 
 @code {
 	public List<User> NonApprovedRequests { get; set; } = new List<User>();

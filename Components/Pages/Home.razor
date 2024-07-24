@@ -1,5 +1,6 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@using MMS.Components.Reusable
 @using Radzen
 @using MMS.Data.Repositories
 @using MMS.Models
@@ -11,24 +12,25 @@
 
 <PageTitle>MMS</PageTitle>
 
-<RadzenCard Style="margin-top: 30px;">
-	<RadzenStack AlignItems="AlignItems.Center" Gap="3rem">
-		<h1 style="font-size: 8em; font-weight: bold;">MMS</h1>
-		<AuthorizeView>
-			<NotAuthorized>
-				<RadzenText TextStyle="TextStyle.H6">Dobrodošli u sustav MMS! Ako nemate račun, možete poslati <span style="font-style: italic;">Zahtjev za članstvom</span>.</RadzenText>
-				<RadzenRow JustifyContent="JustifyContent.Center" Gap="6rem">
-					<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
-						<RadzenText>Imam račun!</RadzenText>
-						<RadzenButton Click=@LogInButtonClick style="width: 200px;">Prijava</RadzenButton>
-					</RadzenStack>
-					<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
-						<RadzenText>Nemam račun!</RadzenText>
-						<RadzenButton Click=@MembershipRequestButtonClick style="width: 200px;">Sastavi zahtjev</RadzenButton>
-					</RadzenStack>
-				</RadzenRow>
-			</NotAuthorized>
-			<Authorized>
+<TopTitle Title="MMS" BigTitle="true">
+	<AuthorizeView>
+		<NotAuthorized>
+		<RadzenStack AlignItems="AlignItems.Center">
+			<RadzenText TextStyle="TextStyle.H6" style="margin-bottom: 30px;">Dobrodošli u sustav MMS! Ako nemate račun, možete poslati <span style="font-style: italic;">Zahtjev za članstvom</span>.</RadzenText>
+			<RadzenRow JustifyContent="JustifyContent.Center" Gap="6rem">
+				<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+					<RadzenText>Imam račun!</RadzenText>
+					<RadzenButton Click=@LogInButtonClick style="width: 200px;">Prijava</RadzenButton>
+				</RadzenStack>
+				<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+					<RadzenText>Nemam račun!</RadzenText>
+					<RadzenButton Click=@MembershipRequestButtonClick style="width: 200px;">Sastavi zahtjev</RadzenButton>
+				</RadzenStack>
+			</RadzenRow>
+		</RadzenStack>
+		</NotAuthorized>
+		<Authorized>
+			<RadzenStack AlignItems="AlignItems.Center">
 				<RadzenText TextStyle="TextStyle.H6">Hej, <b>@context.User.Identity?.Name</b>! Prijavljeni ste u sustav.</RadzenText>
 				<RadzenRow JustifyContent="JustifyContent.Center" Gap="6rem">
 					<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
@@ -40,11 +42,10 @@
 						<RadzenButton Click=@LogoutButtonClick style="width: 200px;">Odjava</RadzenButton>
 					</RadzenStack>
 				</RadzenRow>
-			</Authorized>
-		</AuthorizeView>
-		
-	</RadzenStack>
-</RadzenCard>
+			</RadzenStack>
+		</Authorized>
+	</AuthorizeView>
+</TopTitle>
 
 @code {
 	[CascadingParameter]

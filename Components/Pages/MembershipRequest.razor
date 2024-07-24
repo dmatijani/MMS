@@ -9,11 +9,12 @@
 @inject IUserService UserService
 
 <PageTitle>MMS - Zahtjev za članstvom</PageTitle>
-<h3>Zahtjev za članstvom</h3>
 
-<RadzenText>Na ovoj stranici možete sastaviti zahtjev za članstvom.</RadzenText>
+<TopTitle Title="Zahtjev za članstvom">
+	Na ovoj stranici možete sastaviti zahtjev za članstvom.
+</TopTitle>
 
-<RadzenCard Variant="Variant.Filled">
+<RadzenCard Variant="Variant.Filled" Style="margin-top: 30px;">
 	<RadzenTemplateForm TItem=MembershipRequestViewModel Data=@Model Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit EditContext=@editContext>
 		<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center">
 			<RadzenFieldset Text="Osnovni podaci">

@@ -1,33 +1,52 @@
 ﻿@page "/admin"
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
+@using MMS.Components.Reusable
 @using MMS.Data.Repositories
 @using MMS.Models
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Authorization
+@using Radzen
 @inject NavigationManager NavigationManager
 
 <PageTitle>MMS - Administratorske kontrole</PageTitle>
-<h3>Administratorske kontrole</h3>
 
-<AuthorizeView>
-	<RadzenStack>
-		<RadzenCard>
-			<span>Dobrodošao, <b>@context.User.Identity?.Name</b>, pritisni <a href="/logout">ovdje</a> za odjavu.</span>
-		</RadzenCard>
-		<RadzenButton Text="Trenutačni zahtjevi" Style="max-width: 300px" Click=@CurrentRequestsButton />
-		<RadzenButton Text="Postojeći korisnici" Style="max-width: 300px" Click=@UsersButton />
-	</RadzenStack>
-</AuthorizeView>
+<TopTitle Title="Admin - MMS" BigTitle="true">
+	<AuthorizeView>
+		<RadzenStack AlignItems="AlignItems.Center">
+			<RadzenText TextStyle="TextStyle.H6">Dobrodošao, <b>@context.User.Identity?.Name</b>.</RadzenText>
+			<RadzenRow JustifyContent="JustifyContent.Center" Gap="6rem" Style="margin-top: 30px;">
+				<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+					<RadzenText>Zanimaju me trenutni zahtjevi.</RadzenText>
+					<RadzenButton Click=@CurrentRequestsButtonClick style="width: 200px;">Zahtjevi</RadzenButton>
+				</RadzenStack>
+				<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+					<RadzenText>Zanimaju me trenutni korisnici.</RadzenText>
+					<RadzenButton Click=@UsersButtonClick style="width: 200px;">Korisnici</RadzenButton>
+				</RadzenStack>
+
+				<RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+					<RadzenText>Želim se odjaviti.</RadzenText>
+					<RadzenButton Click=@LogoutButtonClick style="width: 200px;">Odjava</RadzenButton>
+				</RadzenStack>
+			</RadzenRow>
+		</RadzenStack>
+	</AuthorizeView>
+</TopTitle>
 
 @code {
-	private void CurrentRequestsButton()
+	private void CurrentRequestsButtonClick()
 	{
 		NavigationManager.NavigateTo("/admin/requests");
 	}
 
-	private void UsersButton()
+	private void UsersButtonClick()
 	{
 		NavigationManager.NavigateTo("/admin/users");
+	}
+
+	private void LogoutButtonClick()
+	{
+		NavigationManager.NavigateTo("/logout");
 	}
 }

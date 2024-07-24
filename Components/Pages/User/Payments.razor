@@ -12,16 +12,15 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>MMS - Pregled uplata</PageTitle>
-<h3>Pregled uplata</h3>
 
-<RadzenText><a href="/profile">Natrag na moj profil.</a></RadzenText>
+<TopTitle Title="Pregled uplata">
+	@if (user != null)
+	{
+		<RadzenText>Ovdje možete vidjeti sve Vaše uplate, kao i preuzeti potvrde o istima, što se priložili.</RadzenText>
+	}
+</TopTitle>
 
-@if (user != null)
-{
-	<RadzenText>Ovdje možete vidjeti sve Vaše uplate, kao i preuzeti potvrde o istima, što se priložili.</RadzenText>
-}
-
-<RadzenRow JustifyContent="JustifyContent.Center">
+<RadzenRow JustifyContent="JustifyContent.Center" Style="margin-top: 30px;">
 	@if (user == null || loading)
 	{
 		<RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Large" />
