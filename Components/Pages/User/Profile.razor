@@ -107,7 +107,7 @@
 				</RadzenStack>
 			</RadzenStack>
 		</RadzenCard>
-		<RadzenTemplateForm TItem="List<UserDataViewModel>" Data=@UserData Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit Style="width: 100%;">
+		<RadzenTemplateForm TItem="List<UserDataViewModel>" Data=@UserData Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit Style="width: 100%;" EditContext=@editContext>
 			<RadzenStack>
 				<ContactEditor UserData=@UserData Disabled=@updatingContacts>
 					<RadzenText>Ovo su vaši ostali kontakti. Oni nisu nužni, no dobro dođu u slučaju da Vas želimo kontaktirati.</RadzenText>
@@ -119,7 +119,7 @@
 	}
 </RadzenRow>
 
-@code {
+	@code {
 	[CascadingParameter]
 	private Task<AuthenticationState> authenticationState { get; set; }
 
@@ -132,6 +132,8 @@
 
 	public bool hasPayments = false;
 	public bool canPay = true;
+
+	public EditContext editContext { get; set; }
 
 	RadzenUpload uploadComponent;
 	public FileInfo? uploadedFile { get; set; } = null;

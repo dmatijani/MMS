@@ -14,7 +14,7 @@
 <RadzenText>Na ovoj stranici možete sastaviti zahtjev za članstvom.</RadzenText>
 
 <RadzenCard Variant="Variant.Filled">
-	<RadzenTemplateForm TItem=MembershipRequestViewModel Data=@Model Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+	<RadzenTemplateForm TItem=MembershipRequestViewModel Data=@Model Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit EditContext=@editContext>
 		<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center">
 			<RadzenFieldset Text="Osnovni podaci">
 				<RadzenRow JustifyContent="JustifyContent.SpaceBetween">
@@ -69,7 +69,7 @@
 	}
 </RadzenCard>
 
-@code {
+	@code {
 	public MembershipRequestViewModel Model { get; set; } = new MembershipRequestViewModel
 	{
 		UserData = new List<UserDataViewModel>(),
@@ -78,6 +78,8 @@
 
 	public bool sending = false;
 	public bool successful = false;
+
+	public EditContext editContext { get; set; }
 
 	private void OnInvalidSubmit()
 	{

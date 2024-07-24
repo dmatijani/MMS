@@ -44,6 +44,9 @@
 	[Parameter]
 	public RenderFragment ChildContent { get; set; }
 
+	[CascadingParameter]
+	public EditContext EditContext { get; set; }
+
 	int contactId = 0;
 
 	protected override async void OnInitialized()
@@ -66,8 +69,8 @@
 
 	private void RemoveOneContact(int id)
 	{
-		UserData = UserData.OrderBy(ud => ud.Value.Trim() != "" ? 0 : 1).ToList();
-		UserData.RemoveAt(UserData.Count() - 1);
+		UserData.RemoveAll(ud => ud.Id == id);
+		EditContext.NotifyValidationStateChanged();
 		StateHasChanged();
 	}
 
