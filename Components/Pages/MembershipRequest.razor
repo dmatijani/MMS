@@ -89,6 +89,7 @@
 	private async Task OnSubmit()
 	{
 		sending = true;
+		StateHasChanged();
 		var result = await UserService.SendNewMembershipRequest(Model);
 		if (!result.Flag)
 		{
@@ -99,5 +100,6 @@
 			Notifications.ShowSuccessNotification(result.Message);
 			successful = true;
 		}
+		StateHasChanged();
 	}
 }

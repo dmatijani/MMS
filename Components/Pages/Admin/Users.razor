@@ -120,8 +120,10 @@
 	private async Task DeleteUser(User user)
 	{
 		sending = true;
+		StateHasChanged();
 		ServiceResponse response = await UserService.DeleteUser(user);
 		sending = false;
+		StateHasChanged();
 		if (!response.Flag)
 		{
 			Notifications.ShowErrorNotification(response.Message);
